@@ -5,5 +5,5 @@ import { Cmd } from './types.ts';
 
 const [cmd, eggName, ...argv] = Deno.args;
 
-// FIXME: provide proper type check
+// FIXME(danilo-valente): provide proper type check
 await compy(cmd as Cmd, eggName, argv);

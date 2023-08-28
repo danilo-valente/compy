@@ -6,9 +6,17 @@ import { resolve } from 'https://deno.land/std@v0.200.0/path/resolve.ts';
 import { relative } from 'https://deno.land/std@v0.200.0/path/relative.ts';
 import { dim, green, italic, white, yellow } from 'https://deno.land/std@v0.200.0/fmt/colors.ts';
 
-import type { Cmd, CompyShell, EggShell, Embryo, Flags, PermissionFlags, Permissions } from './types.ts';
-
-// Compy: minimalist (yet powerful) monorepo manager for Deno
+import type {
+  Cmd,
+  CompyShell,
+  EggShell,
+  Embryo,
+  Embryos,
+  EntryOrEmbryo,
+  Flags,
+  PermissionFlags,
+  Permissions,
+} from './types.ts';
 
 // TODO(danilo-valente): generate WASM executable
 
@@ -137,9 +145,7 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   };
 
   // TODO(danilo-valente): use zod to parse egg files
-  const parseCmd = (cmd: Cmd): Embryo => {
-    const eggCmd = egg[cmd];
-
+  const parseCmd = (cmd: Cmd, eggCmd?: EntryOrEmbryo<Embryos.Any>): Embryo => {
     const { entry, ...flags } = egg;
 
     if (!eggCmd) {
@@ -178,8 +184,8 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
     throw new Deno.errors.InvalidData(`Invalid definition for command ${cmd}`);
   };
 
-  const buildCmd = (cmd: Cmd) => {
-    const embryo = parseCmd(cmd);
+  const buildNativeCmd = (cmd: Cmd, eggCmd?: EntryOrEmbryo<Embryos.Any>) => {
+    const embryo = parseCmd(cmd, eggCmd);
     const [exec, ...flags] = denoCli[cmd](embryo);
 
     return {
@@ -193,11 +199,8 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
     };
   };
 
-  // TODO(danilo-valente): handle nested commands
   const buildExtCmd = (cmd: string) => {
     // TODO(danilo-valente): implement command inheritance
-    // TODO(danilo-valente): improve extended commands feature
-    // TODO(danilo-valente): validate egg.ext
     const extCmd = egg.ext?.[cmd];
     assert(extCmd, `Missing extended command ${cmd}`);
 
@@ -209,7 +212,25 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
     };
   };
 
-  const { exec, env, args } = cmd in denoCli ? buildCmd(cmd) : buildExtCmd(cmd);
+  const buildCmd = (cmd: string) => {
+    if (cmd in denoCli) {
+      // FIXME(danilo-valente): provide proper type check
+      return buildNativeCmd(cmd as Cmd, egg[cmd as Cmd]);
+    }
+
+    if (egg.run?.[cmd]) {
+      // FIXME(danilo-valente): provide proper type check
+      return buildNativeCmd('run' as Cmd, egg.run[cmd]);
+    }
+
+    if (cmd in (egg.ext ?? {})) {
+      return buildExtCmd(cmd);
+    }
+
+    throw new Deno.errors.InvalidData(`Invalid command ${cmd}`);
+  };
+
+  const { exec, env, args } = buildCmd(cmd);
   const commandArgs = [
     ...args,
     ...argv,

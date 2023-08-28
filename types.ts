@@ -41,6 +41,8 @@ export type Embryo<T = Flags.All> = {
 
 // TODO(danilo-valente): check flag support mapping
 export namespace Embryos {
+  export type Any = Embryo<Flags.All>;
+
   // TODO(danilo-valente): add support for all flags
   export type Lint = Embryo<Flags.Compilation>;
 
@@ -55,7 +57,7 @@ export namespace Embryos {
 
   // TODO(danilo-valente): add support for all flags
   export type Run = Embryo<Flags.Watch | Flags.Lock | Flags.Compilation | Flags.Runtime>;
-};
+}
 
 export namespace Flags {
   export type All = Lock & Watch & Compilation & Runtime;
@@ -88,7 +90,7 @@ export namespace Flags {
     prompt?: boolean;
     seed?: number;
     v8Flags?: string;
-  }
+  };
 }
 
 // TODO(danilo-valente): add support for other commands: bench, check, compile, doc, eval, repl
@@ -99,15 +101,18 @@ export type Cmd = NativeCmd | RunCmd;
 
 export type Entry = string;
 
+export type EntryOrEmbryo<T = Flags.All> = Entry | Partial<Embryo<T>>;
+
 export type Egg = Partial<
-  {
+  & {
     entry: Entry;
-    cache: Entry | Partial<Embryos.Cache>;
-    test: Entry | Partial<Embryos.Test>;
-    fmt: Entry | Partial<Embryos.Fmt>;
-    lint: Entry | Partial<Embryos.Lint>;
-    start: Entry | Partial<Embryos.Run>;
-    dev: Entry | Partial<Embryos.Run>;
+    cache: EntryOrEmbryo<Embryos.Cache>;
+    test: EntryOrEmbryo<Embryos.Test>;
+    fmt: EntryOrEmbryo<Embryos.Fmt>;
+    lint: EntryOrEmbryo<Embryos.Lint>;
+    start: EntryOrEmbryo<Embryos.Run>;
+    dev: EntryOrEmbryo<Embryos.Run>;
+    run: Record<string, EntryOrEmbryo<Embryos.Run>>;
     ext: Record<string, string | Embryo<never>>;
   }
   & Flags.All
