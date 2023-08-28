@@ -22,6 +22,41 @@ const compyPath = resolve(Deno.cwd(), './.compy.ts');
 
 const { default: compy }: CompyShell = await import(`file://${compyPath}`);
 
+const parsePermissions = (flags: PermissionFlags, directive: 'allow' | 'deny'): Partial<Permissions> => {
+  if (typeof flags === 'string') {
+    return { [flags]: true };
+  }
+
+  if (Array.isArray(flags)) {
+    return flags.reduce((map, flag) => ({
+      ...map,
+      [flag]: true,
+    }), {});
+  }
+
+  if (typeof flags === 'object') {
+    return flags;
+  }
+
+  throw new Deno.errors.InvalidData(`Invalid permissions for ${directive}`);
+};
+
+const buildPermissions = (flags: PermissionFlags, directive: 'allow' | 'deny'): string[] => {
+  const permissions = parsePermissions(flags, directive);
+
+  return Object.entries(permissions).reduce<string[]>((list, [permission, value]) => {
+    if (value === true) {
+      list.push(`--${directive}-${permission}`);
+    } else if (typeof value === 'string') {
+      list.push(`--${directive}-${permission}=${value}`);
+    } else if (Array.isArray(value)) {
+      list.push(`--${directive}-${permission}=${value.join(',')}`);
+    }
+
+    return list;
+  }, []);
+};
+
 const flagBuilders = {
   runtime: (flags: Partial<Flags.All>) =>
     [
@@ -59,7 +94,7 @@ const flagBuilders = {
     ].filter((flag) => flag),
 };
 
-export default async (cmd: string, eggName: Cmd, argv: string[]) => {
+export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   assert(eggName, 'Missing package name');
   assert(cmd, 'Missing command');
 
@@ -99,41 +134,6 @@ export default async (cmd: string, eggName: Cmd, argv: string[]) => {
     test: (flags: Flags.All) => cli('test', flags, ['runtime', 'compilation', 'lock', 'watch']),
     fmt: (flags: Flags.All) => cli('fmt', flags, ['compilation', 'watch']),
     lint: (flags: Flags.All) => cli('lint', flags, ['compilation', 'watch']),
-  };
-
-  const parsePermissions = (flags: PermissionFlags, directive: 'allow' | 'deny'): Partial<Permissions> => {
-    if (typeof flags === 'string') {
-      return { [flags]: true };
-    }
-
-    if (Array.isArray(flags)) {
-      return flags.reduce((map, flag) => ({
-        ...map,
-        [flag]: true,
-      }), {});
-    }
-
-    if (typeof flags === 'object') {
-      return flags;
-    }
-
-    throw new Deno.errors.InvalidData(`Invalid permissions for ${directive}`);
-  };
-
-  const buildPermissions = (flags: PermissionFlags, directive: 'allow' | 'deny'): string[] => {
-    const permissions = parsePermissions(flags, directive);
-
-    return Object.entries(permissions).reduce<string[]>((list, [permission, value]) => {
-      if (value === true) {
-        list.push(`--${directive}-${permission}`);
-      } else if (typeof value === 'string') {
-        list.push(`--${directive}-${permission}=${value}`);
-      } else if (Array.isArray(value)) {
-        list.push(`--${directive}-${permission}=${value.join(',')}`);
-      }
-
-      return list;
-    }, []);
   };
 
   // TODO(danilo-valente): use zod to parse egg files
@@ -285,4 +285,4 @@ export default async (cmd: string, eggName: Cmd, argv: string[]) => {
 
   const { code } = await process.status;
   Deno.exit(code);
-}
+};
