@@ -1,10 +1,10 @@
-import { assert } from 'std/assert/assert.ts';
-import { exists } from 'std/fs/exists.ts';
-import { dirname } from 'std/path/dirname.ts';
-import { basename } from 'std/path/basename.ts';
-import { resolve } from 'std/path/resolve.ts';
-import { relative } from 'std/path/relative.ts';
-import { dim, green, italic, white, yellow } from 'std/fmt/colors.ts';
+import { assert } from 'https://deno.land/std@v0.200.0/assert/assert.ts';
+import { exists } from 'https://deno.land/std@v0.200.0/fs/exists.ts';
+import { dirname } from 'https://deno.land/std@v0.200.0/path/dirname.ts';
+import { basename } from 'https://deno.land/std@v0.200.0/path/basename.ts';
+import { resolve } from 'https://deno.land/std@v0.200.0/path/resolve.ts';
+import { relative } from 'https://deno.land/std@v0.200.0/path/relative.ts';
+import { dim, green, italic, white, yellow } from 'https://deno.land/std@v0.200.0/fmt/colors.ts';
 
 import type { Cmd, CompyShell, EggShell, Embryo, Flags, PermissionFlags, Permissions } from './types.ts';
 

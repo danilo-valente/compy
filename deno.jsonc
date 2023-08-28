@@ -20,8 +20,5 @@
   },
   "test": {
     "include": ["spec/"]
-  },
-  "imports": {
-    "std/": "https://deno.land/std@v0.200.0/"
   }
 }
