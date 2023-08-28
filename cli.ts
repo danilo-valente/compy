@@ -1,5 +1,3 @@
-#!/usr/bin/env deno run --allow-env --allow-read --allow-run --allow-sys --unstable --lock=compy.deno.lock
-
 import { assert } from 'https://deno.land/std@0.200.0/assert/mod.ts';
 import { exists } from 'https://deno.land/std@0.200.0/fs/mod.ts';
 import { dirname, resolve } from 'https://deno.land/std@0.200.0/path/mod.ts';
@@ -21,7 +19,7 @@ import type { Cmd, CompyShell, EggShell, Embryo, Flags, PermissionFlags, Permiss
 // TODO(danilo-valente): recursively look for compy.ts in parent directories
 const compyPath = resolve(Deno.cwd(), './.compy.ts');
 
-const { default: compy }: CompyShell = await import(compyPath);
+const { default: compy }: CompyShell = await import(`file://${compyPath}`);
 
 const flagBuilders = {
   runtime: (flags: Partial<Flags.All>) =>
@@ -68,7 +66,7 @@ const nest = resolve(compy.nests ?? 'packages', eggName);
 
 // TODO(danilo-valente): add support for plain .compy.egg.json files
 const eggPath = `${nest}/.compy.egg.ts`;
-const { default: egg }: EggShell = await import(eggPath);
+const { default: egg }: EggShell = await import(`file://${eggPath}`);
 
 const eggLaid = await exists(eggPath, {
   isReadable: true,
