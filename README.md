@@ -1,6 +1,12 @@
 # Compy
 Minimalist (yet powerful) monorepo manager for Deno
 
+## Installation
+
+```sh
+deno install -n compy --allow-env --allow-read --allow-run --allow-sys --allow-net --unstable 'https://deno.land/x/compy/cli.ts'
+```
+
 ## Usage
 
 ```sh
