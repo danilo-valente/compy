@@ -1,0 +1,27 @@
+{
+  "lint": {
+    "include": ["**/*.ts"],
+    "exclude": ["fixtures/", "node_modules/"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["ban-untagged-todo"],
+      "exclude": ["require-await", "no-unused-vars"]
+    }
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 120,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": ["**/*.ts"],
+    "exclude": ["fixtures/", "node_modules/"]
+  },
+  "test": {
+    "include": ["spec/"]
+  },
+  "imports": {
+    "std/": "https://deno.land/std@v0.200.0/"
+  }
+}

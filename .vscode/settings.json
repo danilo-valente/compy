@@ -1,0 +1,14 @@
+{
+  "deno.enable": true,
+  "deno.config": "./deno.jsonc",
+  "deno.lint": true,
+  "deno.unstable": true,
+  "javascript.preferences.quoteStyle": "single",
+  "javascript.format.semicolons": "insert",
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.format.semicolons": "insert",
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno",
+    "editor.formatOnSave": true
+  }
+}
