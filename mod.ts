@@ -1,116 +1,58 @@
-import { assert } from 'https://deno.land/std@v0.200.0/assert/assert.ts';
-import { exists } from 'https://deno.land/std@v0.200.0/fs/exists.ts';
-import { dirname } from 'https://deno.land/std@v0.200.0/path/dirname.ts';
-import { basename } from 'https://deno.land/std@v0.200.0/path/basename.ts';
-import { resolve } from 'https://deno.land/std@v0.200.0/path/resolve.ts';
-import { relative } from 'https://deno.land/std@v0.200.0/path/relative.ts';
-import { dim, green, italic, white, yellow } from 'https://deno.land/std@v0.200.0/fmt/colors.ts';
+import { assert } from 'std/assert/assert.ts';
+import { dim, green, italic, white, yellow } from 'std/fmt/colors.ts';
+import { exists } from 'std/fs/exists.ts';
+import { basename } from 'std/path/basename.ts';
+import { dirname } from 'std/path/dirname.ts';
+import { relative } from 'std/path/relative.ts';
+import { resolve } from 'std/path/resolve.ts';
 
-import type {
-  Cmd,
-  CompyShell,
-  EggShell,
-  Embryo,
-  Embryos,
-  EntryOrEmbryo,
-  Flags,
-  PermissionFlags,
-  Permissions,
-} from './types.ts';
+import { Compy, zCompyShell, zEggShell } from './src/schema.ts';
+import { Embryo, zEntry } from './src/embryo.ts';
+
+import cacheDef from './src/commands/cache.ts';
+import fmtDef from './src/commands/fmt.ts';
+import lintDef from './src/commands/lint.ts';
+import runDef from './src/commands/run.ts';
+import testDef from './src/commands/test.ts';
+
+// TODO(danilo-valente): add support for other commands: bench, check, compile, doc, eval, repl
+const cli = {
+  cache: cacheDef,
+  fmt: fmtDef,
+  lint: lintDef,
+  run: runDef,
+  start: runDef,
+  dev: runDef,
+  test: testDef,
+};
+
+export type Cmd = keyof typeof cli;
 
 // TODO(danilo-valente): generate WASM executable
 
 // TODO(danilo-valente): implement command to create new modules/eggs (lib and app)
 // TODO(danilo-valente): implement command to list all modules/eggs
+// TODO(danilo-valente): implement command to install modules (add to import_map with scope and cache files)
 // TODO(danilo-valente): add flag to specify env file
 
 // TODO(danilo-valente): accept globs and multiple roots
 // TODO(danilo-valente): recursively look for compy.ts in parent directories
 const compyPath = resolve(Deno.cwd(), './.compy.ts');
 
-const { default: compy }: CompyShell = await import(`file://${compyPath}`);
+const compy: Compy = await zCompyShell.parseAsync(
+  await import(`file://${compyPath}`),
+);
 
-const parsePermissions = (flags: PermissionFlags, directive: 'allow' | 'deny'): Partial<Permissions> => {
-  if (typeof flags === 'string') {
-    return { [flags]: true };
-  }
-
-  if (Array.isArray(flags)) {
-    return flags.reduce((map, flag) => ({
-      ...map,
-      [flag]: true,
-    }), {});
-  }
-
-  if (typeof flags === 'object') {
-    return flags;
-  }
-
-  throw new Deno.errors.InvalidData(`Invalid permissions for ${directive}`);
-};
-
-const buildPermissions = (flags: PermissionFlags, directive: 'allow' | 'deny'): string[] => {
-  const permissions = parsePermissions(flags, directive);
-
-  return Object.entries(permissions).reduce<string[]>((list, [permission, value]) => {
-    if (value === true) {
-      list.push(`--${directive}-${permission}`);
-    } else if (typeof value === 'string') {
-      list.push(`--${directive}-${permission}=${value}`);
-    } else if (Array.isArray(value)) {
-      list.push(`--${directive}-${permission}=${value.join(',')}`);
-    }
-
-    return list;
-  }, []);
-};
-
-const flagBuilders = {
-  runtime: (flags: Partial<Flags.All>) =>
-    [
-      ...flags.allow === true ? ['-A'] : buildPermissions(flags.allow ?? [], 'allow'),
-      ...buildPermissions(flags.deny ?? [], 'deny'),
-      flags.check ? '--check' : '',
-      flags.inspect ? `--inspect=${flags.inspect}` : '',
-      flags.inspectBrk ? `--inspect-brk=${flags.inspectBrk}` : '',
-      flags.inspectWait ? `--inspect-wait=${flags.inspectWait}` : '',
-      flags.location ? `--location=${flags.location}` : '',
-      flags.prompt ? '--prompt' : '',
-      flags.seed ? `--seed=${flags.seed}` : '',
-      flags.v8Flags ? `--v8-flags=${flags.v8Flags}` : '',
-    ].filter((flag) => flag),
-
-  compilation: (flags: Partial<Flags.All>) =>
-    [
-      flags.config ? `--config=${flags.config}` : '',
-      flags.importMap ? `--import-map=${flags.importMap}` : '',
-      flags.noRemote ? '--no-remote' : '',
-      flags.reload ? `--reload=${flags.reload}` : '',
-      flags.unstable ? '--unstable' : '',
-      flags.watch ? '--watch' : '',
-    ].filter((flag) => flag),
-
-  lock: (flags: Partial<Flags.All>) =>
-    [
-      flags.lock ? `--lock=${flags.lock}` : '',
-      flags.lockWrite ? '--lock-write' : '',
-    ].filter((flag) => flag),
-
-  watch: (flags: Partial<Flags.All>) =>
-    [
-      flags.watch ? '--watch' : '',
-    ].filter((flag) => flag),
-};
+// type ParsedEmbryo = Exclude<Embryo, AllFlags> & { flags: AllFlags };
 
 export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   assert(eggName, 'Missing package name');
   assert(cmd, 'Missing command');
 
-  const nest = resolve(compy.nests ?? 'packages', eggName);
+  const nest = resolve(compy.modules, eggName);
 
   // TODO(danilo-valente): add support for plain .compy.egg.json files
   const eggPath = `${nest}/.compy.egg.ts`;
-  const { default: egg }: EggShell = await import(`file://${eggPath}`);
 
   const eggLaid = await exists(eggPath, {
     isReadable: true,
@@ -119,80 +61,33 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
 
   assert(eggLaid, `Missing egg file ${eggPath}`);
 
+  const egg = zEggShell.parse(
+    await import(`file://${eggPath}`),
+  );
+
   // TODO(danilo-valente): provide ability to merge config files
   const configPath = relative(nest, resolve(dirname(compyPath), compy.config ?? 'deno.json'));
 
-  const cli = (command: string, flags: Flags.All, flagTypes: (keyof typeof flagBuilders)[]) => [
-    Deno.execPath(),
-    command,
-    '-c',
-    configPath,
-    ...flagTypes.flatMap((type) => flagBuilders[type](flags)),
-  ];
+  const buildNativeCmd = (cmd: Cmd, entryOrEmbryo: Embryo = egg[cmd]) => {
+    const cliCmd = cli[cmd];
 
-  const denoCli = {
-    cache: (flags: Flags.All) => cli('cache', flags, ['compilation', 'lock']),
-    run: (flags: Flags.All) => cli('run', flags, ['runtime', 'compilation', 'lock']),
-    get start() {
-      return this.run;
-    },
-    get dev() {
-      return this.run;
-    },
-    test: (flags: Flags.All) => cli('test', flags, ['runtime', 'compilation', 'lock', 'watch']),
-    fmt: (flags: Flags.All) => cli('fmt', flags, ['compilation', 'watch']),
-    lint: (flags: Flags.All) => cli('lint', flags, ['compilation', 'watch']),
-  };
+    const embryo: Embryo = {
+      flags: cliCmd.flags.strip().parse({
+        ...egg.flags,
+        ...entryOrEmbryo.flags,
+      }),
+      entry: zEntry.parse(entryOrEmbryo.entry || egg.entry),
+      args: entryOrEmbryo.args,
+      env: entryOrEmbryo.env,
+    };
 
-  // TODO(danilo-valente): use zod to parse egg files
-  const parseCmd = (cmd: Cmd, eggCmd?: EntryOrEmbryo<Embryos.Any>): Embryo => {
-    const { entry, ...flags } = egg;
-
-    if (!eggCmd) {
-      assert(egg.entry, `Must provide at least an entry for command ${cmd} a for the egg`);
-
-      return {
-        ...flags,
-        entry: egg.entry,
-        args: [],
-        env: {},
-      };
-    }
-
-    if (typeof eggCmd === 'string') {
-      return {
-        ...flags,
-        entry: eggCmd,
-        args: [],
-        env: {},
-      };
-    }
-
-    if (typeof eggCmd === 'object') {
-      const entry = eggCmd.entry ?? egg.entry;
-      assert(entry, `Must provide at least one entry for command ${cmd} or one for the egg`);
-
-      return {
-        ...flags,
-        ...eggCmd,
-        entry: entry,
-        args: eggCmd.args ?? [],
-        env: eggCmd.env ?? {},
-      };
-    }
-
-    throw new Deno.errors.InvalidData(`Invalid definition for command ${cmd}`);
-  };
-
-  const buildNativeCmd = (cmd: Cmd, eggCmd?: EntryOrEmbryo<Embryos.Any>) => {
-    const embryo = parseCmd(cmd, eggCmd);
-    const [exec, ...flags] = denoCli[cmd](embryo);
+    const { command, args } = cliCmd.build(configPath, embryo.flags);
 
     return {
-      exec,
+      exec: command,
       env: embryo.env,
       args: [
-        ...flags,
+        ...args,
         embryo.entry,
         ...embryo.args,
       ],
@@ -213,9 +108,14 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   };
 
   const buildCmd = (cmd: string) => {
-    if (cmd in denoCli) {
+    if (cmd === 'run') {
+      // TODO(danilo-valente): decide what to do with `run`
+      throw new Deno.errors.InvalidData(`Unsupported (but reserved) command ${cmd}`);
+    }
+
+    if (cmd in cli) {
       // FIXME(danilo-valente): provide proper type check
-      return buildNativeCmd(cmd as Cmd, egg[cmd as Cmd]);
+      return buildNativeCmd(cmd as Cmd);
     }
 
     if (egg.run?.[cmd]) {
@@ -242,7 +142,7 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
     }
 
     console.log(
-      green('[compy]'),
+      green(`[compy:${cmd}]`),
       yellow(tag),
       ...data.map((arg) => {
         if (arg.startsWith('-')) {
