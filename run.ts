@@ -14,6 +14,8 @@ try {
     console.error(red(sprintf('%i\n%s', error.format(), error.stack)));
   } else if (error instanceof Deno.errors.InvalidData) {
     console.error(error.message);
+  } else if (error instanceof Deno.errors.NotFound) {
+    console.error(error.message);
   } else {
     console.error(error);
   }

@@ -13,13 +13,12 @@ export const allFlags = z.object({})
 
 export type AllFlags = z.infer<typeof allFlags>;
 
-export const cli = (command: string) => (configPath: string, flags: string[]): CliCommand => {
+export const cli = (command: string) => (configPath: string | null, flags: string[]): CliCommand => {
   return {
     command: Deno.execPath(),
     args: [
       command,
-      '-c',
-      configPath,
+      ...configPath ? ['-c', configPath] : [],
       ...flags,
     ],
   };
@@ -27,7 +26,7 @@ export const cli = (command: string) => (configPath: string, flags: string[]): C
 
 export interface CliDefinition<F extends AllFlags> {
   readonly flags: z.ZodType<F>;
-  build(configPath: string, flags: F): CliCommand;
+  build(configPath: string | null, flags: F): CliCommand;
 }
 
 export interface CliCommand {
