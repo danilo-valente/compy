@@ -18,9 +18,9 @@ export const zCompy = z.object({
 
 export type Compy = z.infer<typeof zCompy>;
 
-export const zCompyShell = z.object({
-  default: zCompy,
-}).transform((shell) => shell.default).or(zCompy);
+// export const zCompyShell = z.object({
+//   default: zCompy,
+// }).transform((shell) => shell.default).or(zCompy);
 
 type CompyLoaderArgs = {
   cwd?: string;
@@ -48,9 +48,9 @@ export class CompyLoader {
       );
     }
 
-    const compy = zCompyShell.parse(
-      await import(compyUrl.href),
-    );
+    const compyModule = await import(compyUrl.href);
+
+    const compy = zCompy.parse(compyModule.default ?? compyModule);
 
     return [dirname(compyUrl.pathname), compy];
   }

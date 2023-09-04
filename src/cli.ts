@@ -1,17 +1,6 @@
 import * as z from 'zod/mod.ts';
 
-import { compilation } from './flags/compilation.ts';
-import { lock } from './flags/lock.ts';
-import { runtime } from './flags/runtime.ts';
-import { watch } from './flags/watch.ts';
-
-export const allFlags = z.object({})
-  .merge(lock)
-  .merge(watch)
-  .merge(compilation)
-  .merge(runtime);
-
-export type AllFlags = z.infer<typeof allFlags>;
+import { AllFlags } from '~/flags/all.ts';
 
 export const cli = (command: string) => (configPath: string | null, flags: string[]): CliCommand => {
   return {

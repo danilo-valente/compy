@@ -5,16 +5,16 @@ import { dirname } from 'std/path/dirname.ts';
 import { relative } from 'std/path/relative.ts';
 import { resolve } from 'std/path/resolve.ts';
 
-import { CompyLoader } from './src/compy.ts';
-import { ConfigLoader } from './src/config.ts';
-import { EggLoader } from './src/egg.ts';
-import { Embryo, zEntry } from './src/embryo.ts';
+import { CompyLoader } from '~/compy.ts';
+import { ConfigLoader } from '~/config.ts';
+import { EggLoader } from '~/egg.ts';
+import { Embryo } from '~/embryo.ts';
 
-import cacheDef from './src/commands/cache.ts';
-import fmtDef from './src/commands/fmt.ts';
-import lintDef from './src/commands/lint.ts';
-import runDef from './src/commands/run.ts';
-import testDef from './src/commands/test.ts';
+import cacheDef from '~/commands/cache.ts';
+import fmtDef from '~/commands/fmt.ts';
+import lintDef from '~/commands/lint.ts';
+import runDef from '~/commands/run.ts';
+import testDef from '~/commands/test.ts';
 
 // TODO(danilo-valente): add support for other commands: bench, check, compile, doc, eval, repl
 const cli = {
@@ -29,8 +29,6 @@ const cli = {
 
 export type Cmd = keyof typeof cli;
 
-// TODO(danilo-valente): generate WASM executable
-
 // TODO(danilo-valente): implement command to create new modules/eggs (lib and app)
 // TODO(danilo-valente): implement command to list all modules/eggs
 // TODO(danilo-valente): implement command to install modules (add to import_map with scope and cache files)
@@ -38,13 +36,13 @@ export type Cmd = keyof typeof cli;
 
 // TODO(danilo-valente): multiple roots
 
-const compyLoader = new CompyLoader();
-
-const [compyDir, compy] = await compyLoader.load();
-
 export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   assert(eggName, 'Missing package name');
   assert(cmd, 'Missing command');
+
+  const compyLoader = new CompyLoader();
+
+  const [compyDir, compy] = await compyLoader.load();
 
   const nests = resolve(compyDir, compy.modules);
   const eggLoader = new EggLoader({ cwd: nests });
@@ -55,29 +53,31 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   const configLoader = new ConfigLoader({ cwd: compyDir, glob: compy.config });
   const configPath = await configLoader.lookup();
 
-  const buildCliCmd = (cmd: Cmd, entryOrEmbryo: Embryo = egg[cmd]) => {
+  const buildCliCmd = (cmd: Cmd, embryo?: Embryo) => {
     const cliCmd = cli[cmd];
 
-    const embryo: Embryo = {
+    const mergedEmbryo: Embryo = {
       flags: cliCmd.flags.strip().parse({
         ...egg.flags,
-        ...entryOrEmbryo.flags,
+        ...embryo?.flags,
       }),
-      entry: zEntry.parse(entryOrEmbryo.entry || egg.entry),
-      args: entryOrEmbryo.args,
-      env: entryOrEmbryo.env,
+      entry: embryo?.entry || egg.entry,
+      args: embryo?.args ?? [],
+      env: embryo?.env ?? {},
     };
 
+    assert(mergedEmbryo.entry, 'Missing entry file');
+
     const configRelativePath = configPath ? relative(nest, configPath) : null;
-    const { command, args } = cliCmd.build(configRelativePath, embryo.flags);
+    const { command, args } = cliCmd.build(configRelativePath, mergedEmbryo.flags);
 
     return {
       exec: command,
-      env: embryo.env,
+      env: mergedEmbryo.env,
       args: [
         ...args,
-        embryo.entry,
-        ...embryo.args,
+        mergedEmbryo.entry,
+        ...mergedEmbryo.args,
       ],
     };
   };
@@ -96,19 +96,26 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   };
 
   const buildCmd = (cmd: string) => {
-    if (cmd === 'run') {
-      // TODO(danilo-valente): decide what to do with `run`
-      throw new Deno.errors.InvalidData(`Unsupported (but reserved) command ${cmd}`);
-    }
-
-    if (cmd in cli) {
-      // FIXME(danilo-valente): provide proper type check
-      return buildCliCmd(cmd as Cmd);
+    switch (cmd) {
+      case 'test':
+        return buildCliCmd(cmd, egg.test);
+      case 'fmt':
+        return buildCliCmd(cmd, egg.fmt);
+      case 'lint':
+        return buildCliCmd(cmd, egg.lint);
+      case 'cache':
+        return buildCliCmd(cmd, egg.cache);
+      case 'start':
+        return buildCliCmd(cmd, egg.start);
+      case 'dev':
+        return buildCliCmd(cmd, egg.dev);
+      case 'run':
+        // TODO(danilo-valente): decide what to do with `run`
+        throw new Deno.errors.InvalidData(`Unsupported (but reserved) command ${cmd}`);
     }
 
     if (egg.run?.[cmd]) {
-      // FIXME(danilo-valente): provide proper type check
-      return buildCliCmd('run' as Cmd, egg.run[cmd]);
+      return buildCliCmd('run', egg.run[cmd]);
     }
 
     if (cmd in (egg.ext ?? {})) {
@@ -172,7 +179,7 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
     stderr: 'piped',
   });
 
-  const process = await command.spawn();
+  const process = command.spawn();
 
   process.stdout.pipeTo(Deno.stdout.writable);
   process.stderr.pipeTo(Deno.stderr.writable);

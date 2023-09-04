@@ -1,4 +1,14 @@
 {
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    "strictPropertyInitialization": true,
+    "strictNullChecks": true
+  },
   "lint": {
     "include": ["src/**/*.ts", "*.ts"],
     "exclude": ["example/", "fixtures/", "node_modules/"],
@@ -22,8 +32,5 @@
     "include": ["spec/"],
     "exclude": ["example/"]
   },
-  "imports": {
-    "std/": "https://deno.land/std@v0.200.0/",
-    "zod/": "https://deno.land/x/zod@v3.22.2/"
-  }
+  "importMap": "import_map.json"
 }

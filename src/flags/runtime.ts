@@ -1,6 +1,6 @@
 import * as z from 'zod/mod.ts';
 
-import { buildPermissions, permissionFlags } from '../permissions.ts';
+import { buildPermissions, permissionFlags } from '~/permissions.ts';
 
 export const runtimeInspect = z.union([z.string(), z.tuple([z.string(), z.number()])]);
 

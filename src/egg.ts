@@ -4,14 +4,14 @@ import { normalizeGlob } from 'std/path/glob.ts';
 import { toFileUrl } from 'std/path/to_file_url.ts';
 import * as z from 'zod/mod.ts';
 
-import { zEmbryo, zEntry } from './embryo.ts';
-import { allFlags } from './cli.ts';
+import { zEmbryo, zEntry } from '~/embryo.ts';
+import { allFlags } from '~/flags/all.ts';
 
-import { cacheFlags } from './commands/cache.ts';
-import { fmtFlags } from './commands/fmt.ts';
-import { lintFlags } from './commands/lint.ts';
-import { runFlags } from './commands/run.ts';
-import { testFlags } from './commands/test.ts';
+import { cacheFlags } from '~/commands/cache.ts';
+import { fmtFlags } from '~/commands/fmt.ts';
+import { lintFlags } from '~/commands/lint.ts';
+import { runFlags } from '~/commands/run.ts';
+import { testFlags } from '~/commands/test.ts';
 
 export const EGG_GLOB = '.compy.egg.@(ts|json)';
 
@@ -46,10 +46,10 @@ export const zEgg = z.object({
 
 export type Egg = z.infer<typeof zEgg>;
 
-export const zEggShell = z.union([
-  zEgg,
-  z.object({ default: zEgg }).transform((shell) => shell.default),
-]);
+// export const zEggShell = z.union([
+//   zEgg,
+//   z.object({ default: zEgg }).transform((shell) => shell.default),
+// ]);
 
 type EggLoaderArgs = {
   cwd: string;
@@ -72,9 +72,9 @@ export class EggLoader {
       throw new Deno.errors.NotFound(`Could not find ${this.glob} in ${this.cwd}`);
     }
 
-    const egg = zEggShell.parse(
-      await import(eggUrl.href),
-    );
+    const eggModule = await import(eggUrl.href);
+
+    const egg = zEgg.parse(eggModule.default ?? eggModule);
 
     return [dirname(eggUrl.pathname), egg];
   }

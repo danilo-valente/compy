@@ -4,7 +4,10 @@ Minimalist (yet powerful) monorepo manager for Deno
 ## Installation
 
 ```sh
-deno install -n compy --allow-env --allow-read --allow-run --allow-sys --allow-net --unstable 'https://deno.land/x/compy/run.ts'
+deno install -n compy \
+  --allow-env --allow-read --allow-run --allow-sys --allow-net --unstable \
+  --import-map='https://deno.land/x/compy/import_map.json' \
+  -f 'https://deno.land/x/compy/run.ts'
 ```
 
 ## Usage

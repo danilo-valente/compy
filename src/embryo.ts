@@ -1,5 +1,7 @@
 import * as z from 'zod/mod.ts';
 
+import { allFlags } from '~/flags/all.ts';
+
 export const zEntry = z.string().min(1);
 
 const zEmbryoObject = <F extends z.AnyZodObject>(flags: F) =>
@@ -17,13 +19,14 @@ const zEmbryoObject = <F extends z.AnyZodObject>(flags: F) =>
       env,
     }));
 
-const zEmbryoEntry = zEntry.transform((entry) => ({ entry }))
-  .pipe(zEmbryoObject(z.object({})));
+const zEmbryoEntry = <F extends z.AnyZodObject>(flags: F) =>
+  zEntry.transform((entry) => ({ entry }))
+    .pipe(zEmbryoObject(flags));
 
 export const zEmbryo = <F extends z.AnyZodObject>(flags: F) =>
   z.union([
     zEmbryoObject(flags),
-    zEmbryoEntry,
+    zEmbryoEntry(flags),
   ])
     .pipe(z.object({
       flags: flags,
@@ -32,4 +35,6 @@ export const zEmbryo = <F extends z.AnyZodObject>(flags: F) =>
       env: z.record(z.string()).default({}),
     }));
 
-export type Embryo = z.infer<ReturnType<typeof zEmbryo>>;
+const zAnyEmbryo = zEmbryo(allFlags);
+
+export type Embryo = z.infer<typeof zAnyEmbryo>;
