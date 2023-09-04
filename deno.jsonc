@@ -1,7 +1,7 @@
 {
   "lint": {
-    "include": ["**/*.ts"],
-    "exclude": ["fixtures/", "node_modules/"],
+    "include": ["src/**/*.ts", "*.ts"],
+    "exclude": ["example/", "fixtures/", "node_modules/"],
     "rules": {
       "tags": ["recommended"],
       "include": ["ban-untagged-todo"],
@@ -15,10 +15,15 @@
     "semiColons": true,
     "singleQuote": true,
     "proseWrap": "preserve",
-    "include": ["**/*.ts"],
-    "exclude": ["fixtures/", "node_modules/"]
+    "include": ["src/**/*.ts", "*.ts"],
+    "exclude": ["example/", "fixtures/", "node_modules/"]
   },
   "test": {
-    "include": ["spec/"]
+    "include": ["spec/"],
+    "exclude": ["example/"]
+  },
+  "imports": {
+    "std/": "https://deno.land/std@v0.200.0/",
+    "zod/": "https://deno.land/x/zod@v3.22.2/"
   }
 }

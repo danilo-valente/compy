@@ -1,9 +1,22 @@
-#!/usr/bin/env -S deno run --allow-env --allow-read --allow-run --allow-sys --allow-net --unstable --lock=compy.deno.lock
+import { red } from 'std/fmt/colors.ts';
+import { sprintf } from 'std/fmt/printf.ts';
+import { ZodError } from 'zod/mod.ts';
 
-import compy from './mod.ts';
-import { Cmd } from './types.ts';
+import compy, { Cmd } from './mod.ts';
 
 const [cmd, eggName, ...argv] = Deno.args;
 
-// FIXME(danilo-valente): provide proper type check
-await compy(cmd as Cmd, eggName, argv);
+try {
+  // FIXME(danilo-valente): provide proper type check
+  await compy(cmd as Cmd, eggName, argv);
+} catch (error) {
+  if (error instanceof ZodError) {
+    console.error(red(sprintf('%i\n%s', error.format(), error.stack)));
+  } else if (error instanceof Deno.errors.InvalidData) {
+    console.error(error.message);
+  } else {
+    console.error(error);
+  }
+
+  Deno.exit(1);
+}
