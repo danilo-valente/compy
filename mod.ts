@@ -1,12 +1,13 @@
 import { assert } from 'std/assert/assert.ts';
 import { dim, green, italic, white, yellow } from 'std/fmt/colors.ts';
-import { exists } from 'std/fs/exists.ts';
 import { basename } from 'std/path/basename.ts';
 import { dirname } from 'std/path/dirname.ts';
 import { relative } from 'std/path/relative.ts';
 import { resolve } from 'std/path/resolve.ts';
 
-import { Compy, zCompyShell, zEggShell } from './src/schema.ts';
+import { CompyLoader } from './src/compy.ts';
+import { ConfigLoader } from './src/config.ts';
+import { EggLoader } from './src/egg.ts';
 import { Embryo, zEntry } from './src/embryo.ts';
 
 import cacheDef from './src/commands/cache.ts';
@@ -35,40 +36,26 @@ export type Cmd = keyof typeof cli;
 // TODO(danilo-valente): implement command to install modules (add to import_map with scope and cache files)
 // TODO(danilo-valente): add flag to specify env file
 
-// TODO(danilo-valente): accept globs and multiple roots
-// TODO(danilo-valente): recursively look for compy.ts in parent directories
-const compyPath = resolve(Deno.cwd(), './.compy.ts');
+// TODO(danilo-valente): multiple roots
 
-const compy: Compy = await zCompyShell.parseAsync(
-  await import(`file://${compyPath}`),
-);
+const compyLoader = new CompyLoader();
 
-// type ParsedEmbryo = Exclude<Embryo, AllFlags> & { flags: AllFlags };
+const [compyDir, compy] = await compyLoader.load();
 
 export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   assert(eggName, 'Missing package name');
   assert(cmd, 'Missing command');
 
-  const nest = resolve(compy.modules, eggName);
+  const nests = resolve(compyDir, compy.modules);
+  const eggLoader = new EggLoader({ cwd: nests });
 
-  // TODO(danilo-valente): add support for plain .compy.egg.json files
-  const eggPath = `${nest}/.compy.egg.ts`;
-
-  const eggLaid = await exists(eggPath, {
-    isReadable: true,
-    isFile: true,
-  });
-
-  assert(eggLaid, `Missing egg file ${eggPath}`);
-
-  const egg = zEggShell.parse(
-    await import(`file://${eggPath}`),
-  );
+  const [nest, egg] = await eggLoader.load(eggName);
 
   // TODO(danilo-valente): provide ability to merge config files
-  const configPath = relative(nest, resolve(dirname(compyPath), compy.config ?? 'deno.json'));
+  const configLoader = new ConfigLoader({ cwd: compyDir, glob: compy.config });
+  const configPath = await configLoader.lookup();
 
-  const buildNativeCmd = (cmd: Cmd, entryOrEmbryo: Embryo = egg[cmd]) => {
+  const buildCliCmd = (cmd: Cmd, entryOrEmbryo: Embryo = egg[cmd]) => {
     const cliCmd = cli[cmd];
 
     const embryo: Embryo = {
@@ -81,7 +68,8 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
       env: entryOrEmbryo.env,
     };
 
-    const { command, args } = cliCmd.build(configPath, embryo.flags);
+    const configRelativePath = configPath ? relative(nest, configPath) : null;
+    const { command, args } = cliCmd.build(configRelativePath, embryo.flags);
 
     return {
       exec: command,
@@ -115,12 +103,12 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
 
     if (cmd in cli) {
       // FIXME(danilo-valente): provide proper type check
-      return buildNativeCmd(cmd as Cmd);
+      return buildCliCmd(cmd as Cmd);
     }
 
     if (egg.run?.[cmd]) {
       // FIXME(danilo-valente): provide proper type check
-      return buildNativeCmd('run' as Cmd, egg.run[cmd]);
+      return buildCliCmd('run' as Cmd, egg.run[cmd]);
     }
 
     if (cmd in (egg.ext ?? {})) {

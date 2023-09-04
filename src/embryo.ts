@@ -20,19 +20,16 @@ const zEmbryoObject = <F extends z.AnyZodObject>(flags: F) =>
 const zEmbryoEntry = zEntry.transform((entry) => ({ entry }))
   .pipe(zEmbryoObject(z.object({})));
 
-export const zEmbryoOutput = <F extends z.AnyZodObject>(flags: F) =>
-  z.object({
-    flags: flags,
-    entry: zEntry.optional(),
-    args: z.array(z.string()).default([]),
-    env: z.record(z.string()).default({}),
-  });
-
 export const zEmbryo = <F extends z.AnyZodObject>(flags: F) =>
   z.union([
     zEmbryoObject(flags),
     zEmbryoEntry,
   ])
-    .pipe(zEmbryoOutput(flags));
+    .pipe(z.object({
+      flags: flags,
+      entry: zEntry.optional(),
+      args: z.array(z.string()).default([]),
+      env: z.record(z.string()).default({}),
+    }));
 
 export type Embryo = z.infer<ReturnType<typeof zEmbryo>>;

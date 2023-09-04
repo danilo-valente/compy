@@ -1,6 +1,6 @@
 import * as z from 'zod/mod.ts';
 
-import { cli, CliDefinition } from '../engine.ts';
+import { cli, CliDefinition } from '../cli.ts';
 import { compilation, compilationTransformer } from '../flags/compilation.ts';
 import { watch, watchTransformer } from '../flags/watch.ts';
 
