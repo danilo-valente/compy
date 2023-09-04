@@ -5,9 +5,9 @@ import { dirname } from 'std/path/dirname.ts';
 import { relative } from 'std/path/relative.ts';
 import { resolve } from 'std/path/resolve.ts';
 
-import { CompyLoader } from '~/compy.ts';
+import { Compy, CompyLoader } from '~/compy.ts';
 import { ConfigLoader } from '~/config.ts';
-import { EggLoader } from '~/egg.ts';
+import { Egg, EggLoader } from '~/egg.ts';
 import { Embryo } from '~/embryo.ts';
 
 import cacheDef from '~/commands/cache.ts';
@@ -36,8 +36,9 @@ export type Cmd = keyof typeof cli;
 
 // TODO(danilo-valente): multiple roots
 
-export default async (cmd: Cmd, eggName: string, argv: string[]) => {
-  assert(eggName, 'Missing package name');
+const ALL_EGGS = '*';
+
+export default async (cmd: Cmd, eggNames: string = ALL_EGGS, argv: string[] = []) => {
   assert(cmd, 'Missing command');
 
   const compyLoader = new CompyLoader();
@@ -47,8 +48,49 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   const nests = resolve(compyDir, compy.modules);
   const eggLoader = new EggLoader({ cwd: nests });
 
-  const [nest, egg] = await eggLoader.load(eggName);
+  const eggGlob = eggNames === ALL_EGGS ? '*' : `@(${eggNames.split(',').join('|')})`;
 
+  const urls = await eggLoader.lookup(eggGlob);
+
+  // for (const url of urls) {
+  //   const [nest, egg] = await eggLoader.loadFromUrl(url);
+  //   const eggName = basename(nest);
+  //   // console.log({ cmd, argv, nest, eggName, egg, compyDir, compy });
+
+  //   const code = await exec({ cmd, argv, nest, eggName, egg, compyDir, compy });
+
+  //   if (code !== 0) {
+  //     Deno.exit(code);
+  //   }
+  // }
+
+  const codes = await Promise.all(
+    urls.map(async (url) => {
+      const [nest, egg] = await eggLoader.loadFromUrl(url);
+      const eggName = basename(nest);
+
+      return await exec({ cmd, argv, nest, eggName, egg, compyDir, compy });
+    }),
+  );
+
+  const exitCode = codes.reduce((acc, code) => acc || code, 0);
+
+  if (exitCode !== 0) {
+    Deno.exit(exitCode);
+  }
+};
+
+type ExecArgs = {
+  cmd: string;
+  argv: string[];
+  nest: string;
+  eggName: string;
+  egg: Egg;
+  compyDir: string;
+  compy: Compy;
+};
+
+const exec = async ({ cmd, argv, nest, eggName, egg, compyDir, compy }: ExecArgs): Promise<number> => {
   // TODO(danilo-valente): provide ability to merge config files
   const configLoader = new ConfigLoader({ cwd: compyDir, glob: compy.config });
   const configPath = await configLoader.lookup();
@@ -137,7 +179,7 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
     }
 
     console.log(
-      green(`[compy:${cmd}]`),
+      green(`[compy:${cmd} > ${eggName}]`),
       yellow(tag),
       ...data.map((arg) => {
         if (arg.startsWith('-')) {
@@ -181,8 +223,8 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
 
   const process = command.spawn();
 
-  process.stdout.pipeTo(Deno.stdout.writable);
-  process.stderr.pipeTo(Deno.stderr.writable);
+  // process.stdout.pipeTo(Deno.stdout.writable);
+  // process.stderr.pipeTo(Deno.stderr.writable);
 
   Deno.addSignalListener('SIGINT', () => {
     process.kill('SIGINT');
@@ -199,6 +241,17 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
   //   Deno.exit(1);
   // });
 
-  const { code } = await process.status;
-  Deno.exit(code);
+  const pipe = async (readable: ReadableStream<Uint8Array>, writable: typeof Deno.stdout | typeof Deno.stderr) => {
+    for await (const buffer of readable) {
+      writable.write(buffer);
+    }
+  };
+
+  const [{ code }] = await Promise.all([
+    process.status,
+    pipe(process.stdout, Deno.stdout),
+    pipe(process.stderr, Deno.stderr),
+  ]);
+
+  return code;
 };

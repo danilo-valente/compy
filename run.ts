@@ -37,7 +37,7 @@ try {
   } else if (error instanceof Deno.errors.NotFound) {
     console.error(error.message);
   } else {
-    console.error(error);
+    throw error;
   }
 
   Deno.exit(1);

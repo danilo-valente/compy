@@ -72,6 +72,10 @@ export class EggLoader {
       throw new Deno.errors.NotFound(`Could not find ${this.glob} in ${this.cwd}`);
     }
 
+    return await this.loadFromUrl(eggUrl);
+  }
+
+  async loadFromUrl(eggUrl: URL): Promise<[string, Egg]> {
     const eggModule = await import(eggUrl.href);
 
     const egg = zEgg.parse(eggModule.default ?? eggModule);
