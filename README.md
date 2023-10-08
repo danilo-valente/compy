@@ -24,7 +24,7 @@ compy <cache|start|dev|test|fmt|lint> <target> [...args]
 import { Compy } from 'https://deno.land/x/compy/types.ts';
 
 export default {
-  nests: 'packages',
+  modules: 'packages',
   config: 'deno.jsonc',
 } satisfies Compy;
 ```
