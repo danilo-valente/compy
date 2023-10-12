@@ -4,9 +4,11 @@ import { resolve } from 'std/path/resolve.ts';
 import { toFileUrl } from 'std/path/to_file_url.ts';
 import * as z from 'zod/mod.ts';
 
+import { EGG_GLOB, EggLoader } from '~/egg.ts';
+
 export const COMPY_GLOB = '.compy.@(ts|json)';
 
-export const zCompy = z.object({
+export const zCompyConfig = z.object({
   modules: z.string().default('packages'),
   config: z.string().default('deno.@(jsonc|json)'),
 })
@@ -16,14 +18,22 @@ export const zCompy = z.object({
     config: z.string(),
   }));
 
-export type Compy = z.infer<typeof zCompy>;
+export type CompyConfig = z.infer<typeof zCompyConfig>;
+
+export type Compy = {
+  cwd: string;
+  root: string;
+  config: CompyConfig;
+  nests: string;
+  eggs: EggLoader;
+};
 
 // export const zCompyShell = z.object({
 //   default: zCompy,
 // }).transform((shell) => shell.default).or(zCompy);
 
 type CompyLoaderArgs = {
-  cwd?: string;
+  cwd: string;
   rootDir?: string;
   glob?: string;
 };
@@ -33,13 +43,21 @@ export class CompyLoader {
   private readonly rootDir: string;
   private readonly glob: string;
 
-  constructor({ cwd = Deno.cwd(), rootDir = resolve('/'), glob = COMPY_GLOB }: CompyLoaderArgs = {}) {
+  constructor({ cwd, rootDir = resolve('/'), glob = COMPY_GLOB }: CompyLoaderArgs) {
     this.cwd = cwd;
     this.rootDir = rootDir;
     this.glob = glob;
   }
 
-  async load(): Promise<[string, Compy]> {
+  static async from(cwdOrArgs: string | CompyLoaderArgs): Promise<Compy> {
+    const args = typeof cwdOrArgs === 'string' ? { cwd: cwdOrArgs } : cwdOrArgs;
+
+    const loader = new CompyLoader(args);
+
+    return await loader.load();
+  }
+
+  async load(): Promise<Compy> {
     const compyUrl = await this.lookup();
 
     if (!compyUrl) {
@@ -50,9 +68,21 @@ export class CompyLoader {
 
     const compyModule = await import(compyUrl.href);
 
-    const compy = zCompy.parse(compyModule.default ?? compyModule);
+    const compyConfig = zCompyConfig.parse(compyModule.default ?? compyModule);
 
-    return [dirname(compyUrl.pathname), compy];
+    const compyRoot = dirname(compyUrl.pathname);
+    const nestsRoot = resolve(compyRoot, compyConfig.modules);
+
+    return {
+      cwd: this.cwd,
+      root: compyRoot,
+      config: compyConfig,
+      nests: nestsRoot,
+      eggs: new EggLoader({
+        cwd: compyRoot,
+        glob: `${compyConfig.modules}/${EGG_GLOB}`,
+      }),
+    };
   }
 
   async lookup(dir = this.cwd): Promise<URL | null> {

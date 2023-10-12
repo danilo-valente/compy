@@ -2,17 +2,10 @@ import { red } from 'std/fmt/colors.ts';
 import { ZodError } from 'zod/mod.ts';
 import { generateErrorMessage } from 'npm:zod-error';
 
-import compy, { Cmd } from './mod.ts';
-
-const [cmd, eggName, ...argv] = Deno.args;
+import cli from '~/cli/mod.ts';
 
 try {
-  // FIXME(danilo-valente): provide proper type check
-  const command = await compy(cmd as Cmd, eggName, argv);
-
-  const code = await command();
-
-  Deno.exit(code);
+  await cli.parse(Deno.args);
 } catch (error) {
   if (error instanceof ZodError) {
     const message = generateErrorMessage(error.issues, {

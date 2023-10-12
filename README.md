@@ -1,5 +1,5 @@
 # Compy
-Minimalist (yet powerful) monorepo manager for Deno
+Minimalist (yet helpful) monorepo manager for Deno
 
 ## Installation
 

@@ -12,10 +12,11 @@ import { fmtFlags } from '~/commands/fmt.ts';
 import { lintFlags } from '~/commands/lint.ts';
 import { runFlags } from '~/commands/run.ts';
 import { testFlags } from '~/commands/test.ts';
+import { basename } from 'std/path/basename.ts';
 
 export const EGG_GLOB = '.compy.egg.@(ts|json)';
 
-export const zEgg = z.object({
+export const zEggConfig = z.object({
   entry: zEntry,
   cache: zEmbryo(cacheFlags),
   test: zEmbryo(testFlags),
@@ -44,7 +45,14 @@ export const zEgg = z.object({
     flags,
   }));
 
-export type Egg = z.infer<typeof zEgg>;
+export type EggConfig = z.infer<typeof zEggConfig>;
+
+export type Egg = {
+  cwd: string;
+  nest: string;
+  config: EggConfig;
+  name: string;
+};
 
 // export const zEggShell = z.union([
 //   zEgg,
@@ -65,33 +73,39 @@ export class EggLoader {
     this.glob = glob;
   }
 
-  async load(name: string): Promise<[string, Egg]> {
-    const [eggUrl] = await this.lookup(name);
+  async load(name: string): Promise<Egg> {
+    const eggs = await this.lookup(name);
+    const eggUrl = eggs[name];
 
     if (!eggUrl) {
-      throw new Deno.errors.NotFound(`Could not find ${this.glob} in ${this.cwd}`);
+      throw new Deno.errors.NotFound(`Could not find egg "${name}" using glob "${this.glob}"`);
     }
 
     const eggModule = await import(eggUrl.href);
 
-    const egg = zEgg.parse(eggModule.default ?? eggModule);
+    const eggConfig = zEggConfig.parse(eggModule.default ?? eggModule);
 
-    return [dirname(eggUrl.pathname), egg];
+    return {
+      cwd: this.cwd,
+      nest: dirname(eggUrl.pathname),
+      config: eggConfig,
+      name,
+    };
   }
 
-  async lookup(name = '*'): Promise<URL[]> {
-    const glob = normalizeGlob(`${name}/${this.glob}`);
+  async lookup(pattern = '*'): Promise<Record<string, URL>> {
+    const glob = normalizeGlob(`${pattern}/${this.glob}`);
 
-    const urls = [];
+    const urls: Record<string, URL> = {};
 
     for await (const entry of expandGlob(glob, { root: this.cwd })) {
       if (!entry.isFile) {
         continue;
       }
 
-      urls.push(
-        toFileUrl(entry.path),
-      );
+      const name = basename(dirname(entry.path));
+
+      urls[name] = toFileUrl(entry.path);
     }
 
     return urls;

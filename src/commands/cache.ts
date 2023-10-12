@@ -1,6 +1,6 @@
 import * as z from 'zod/mod.ts';
 
-import { cli, CliDefinition } from '~/cli.ts';
+import { cli, CliDefinition } from '~/deno-cli.ts';
 import { compilation, compilationTransformer } from '~/flags/compilation.ts';
 import { lock, lockTransformer } from '~/flags/lock.ts';
 

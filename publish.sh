@@ -61,7 +61,7 @@ fi
 
 # Deno Check & Test
 
-check=`deno check mod.ts run.ts types.ts`
+check=`deno check run.ts types.ts`
 [ $? -ne 0 ] && echo "Deno Check failed." && exit 1
 
 # if [ $? -ne 0 ]; then

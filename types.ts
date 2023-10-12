@@ -1,8 +1,8 @@
 import * as z from 'zod/mod.ts';
 
-import { zCompy } from '~/compy.ts';
-import { zEgg } from '~/egg.ts';
+import { zCompyConfig } from '~/compy.ts';
+import { zEggConfig } from '~/egg.ts';
 
-export type Egg = z.input<typeof zEgg>;
+export type Egg = z.input<typeof zEggConfig>;
 
-export type Compy = z.input<typeof zCompy>;
+export type Compy = z.input<typeof zCompyConfig>;

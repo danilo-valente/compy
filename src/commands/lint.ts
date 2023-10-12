@@ -1,6 +1,6 @@
 import * as z from 'zod/mod.ts';
 
-import { cli, CliDefinition } from '~/cli.ts';
+import { cli, CliDefinition } from '~/deno-cli.ts';
 import { compilation, compilationTransformer } from '~/flags/compilation.ts';
 
 // TODO(danilo-valente): check flag support mapping
