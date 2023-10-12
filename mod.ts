@@ -13,6 +13,7 @@ import { Embryo } from '~/embryo.ts';
 import cacheDef from '~/commands/cache.ts';
 import fmtDef from '~/commands/fmt.ts';
 import lintDef from '~/commands/lint.ts';
+import checkDef from '~/commands/check.ts';
 import runDef from '~/commands/run.ts';
 import testDef from '~/commands/test.ts';
 
@@ -21,6 +22,7 @@ const cli = {
   cache: cacheDef,
   fmt: fmtDef,
   lint: lintDef,
+  check: checkDef,
   run: runDef,
   start: runDef,
   dev: runDef,
@@ -103,6 +105,8 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
         return buildCliCmd(cmd, egg.fmt);
       case 'lint':
         return buildCliCmd(cmd, egg.lint);
+      case 'check':
+        return buildCliCmd(cmd, egg.check);
       case 'cache':
         return buildCliCmd(cmd, egg.cache);
       case 'start':

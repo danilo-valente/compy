@@ -13,7 +13,7 @@ deno install -n compy \
 ## Usage
 
 ```sh
-compy <cache|start|dev|test|fmt|lint> <target> [...args]
+compy <cache|start|dev|test|fmt|lint|check> <target> [...args]
 ```
 
 ## Files
@@ -51,6 +51,7 @@ export default {
   },
   fmt: './src/',
   lint: './src/',
+  check: './src/run.ts',
   // ext: {
   //   tag: 'git tag',
   // },

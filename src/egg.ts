@@ -10,6 +10,7 @@ import { allFlags } from '~/flags/all.ts';
 import { cacheFlags } from '~/commands/cache.ts';
 import { fmtFlags } from '~/commands/fmt.ts';
 import { lintFlags } from '~/commands/lint.ts';
+import { checkflags } from './commands/check.ts';
 import { runFlags } from '~/commands/run.ts';
 import { testFlags } from '~/commands/test.ts';
 
@@ -21,6 +22,7 @@ export const zEgg = z.object({
   test: zEmbryo(testFlags),
   fmt: zEmbryo(fmtFlags),
   lint: zEmbryo(lintFlags),
+  check: zEmbryo(checkflags),
   start: zEmbryo(runFlags),
   dev: zEmbryo(runFlags),
   // dev: zEmbryo(runFlags.extend({
@@ -31,12 +33,13 @@ export const zEgg = z.object({
 })
   .partial()
   .merge(allFlags)
-  .transform(({ entry, cache, test, fmt, lint, start, dev, run, ext, ...flags }) => ({
+  .transform(({ entry, cache, test, fmt, lint, check, start, dev, run, ext, ...flags }) => ({
     entry,
     cache,
     test,
     fmt,
     lint,
+    check,
     start,
     dev,
     run,

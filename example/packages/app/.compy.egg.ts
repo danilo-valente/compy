@@ -22,6 +22,7 @@ export default {
   },
   fmt: './src/',
   lint: './src/',
+  check: './src/mod.ts',
   run: {
     migrate: {
       entry: './ley/cli.ts',
