@@ -12,8 +12,34 @@ deno install -n compy \
 
 ## Usage
 
+### Display help
+
 ```sh
-compy <cache|start|dev|test|fmt|lint> <target> [...args]
+compy -h
+```
+
+### Display version
+
+```sh
+compy -V
+```
+
+### Create a new Compy project
+
+```sh
+compy init <project> [-m=packages] [-c=deno.json] [-i=import_map.json]
+```
+
+### Run a Deno command in a module's context
+
+```sh
+compy <cache|start|dev|test|fmt|lint> <module> [...args]
+```
+
+### Generate a shell script to run a Deno command in a module's context
+
+```sh
+compy sh <cache|start|dev|test|fmt|lint> <module> [...args]
 ```
 
 ## Files

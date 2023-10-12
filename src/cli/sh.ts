@@ -5,6 +5,7 @@ import { CmdType, EggType, getCompy } from '~/cli/util.ts';
 
 export const sh = new Command()
   .name('sh')
+  .description('Generate a shell script to run a Deno command in a module\'s context')
   .type('cmd', new CmdType())
   .type('egg', new EggType())
   .type('shell', new EnumType(['sh', 'bash', 'zsh', 'ash', 'fish']))
@@ -14,6 +15,14 @@ export const sh = new Command()
     const compy = await getCompy();
     const native = await buildNative(compy, cmd, module, args);
 
+    const shEnv = Object.entries(native.env).map(
+      ([key, value]) => `export ${key}="${value.replace(/"/g, '\\"')}"`,
+    );
+
+    const shArgs = native.args.map(
+      (arg) => arg.replace(/([\\\s])/g, '\\$1'),
+    );
+
     const scripts = `
         #!/usr/bin/env ${shell}
 
@@ -22,11 +31,9 @@ export const sh = new Command()
 
         cd ${native.cwd}
 
-        ${Object.entries(native.env).map(
-          ([key, value]) => `export ${key}="${value.replace(/"/g, '\\"')}"`
-        ).join('\n')}
+        ${shEnv.join('\n')}
 
-        ${native.exec} ${native.args.map(arg => arg.replace(/([\\\s])/g, '\\$1')).join(' ')}
+        ${native.exec} ${shArgs.join(' ')}
       `.replace(/^[ \t]+/gm, '').replace(/\n{3,}/g, '\n\n');
 
     await Deno.stdout.write(
