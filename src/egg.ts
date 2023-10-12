@@ -68,7 +68,7 @@ export class EggLoader {
   private readonly cwd: string;
   private readonly glob: string;
 
-  constructor({ cwd, glob = EGG_GLOB }: EggLoaderArgs) {
+  constructor({ cwd, rootDir, glob = EGG_GLOB }: EggLoaderArgs) {
     this.cwd = cwd;
     this.glob = glob;
   }
@@ -78,7 +78,7 @@ export class EggLoader {
     const eggUrl = eggs[name];
 
     if (!eggUrl) {
-      throw new Deno.errors.NotFound(`Could not find egg "${name}" using glob "${this.glob}"`);
+      throw new Deno.errors.NotFound(`Could not find egg "${name}/${this.glob}" in ${this.cwd} using glob`);
     }
 
     const eggModule = await import(eggUrl.href);

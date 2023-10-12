@@ -78,10 +78,7 @@ export class CompyLoader {
       root: compyRoot,
       config: compyConfig,
       nests: nestsRoot,
-      eggs: new EggLoader({
-        cwd: compyRoot,
-        glob: `${compyConfig.modules}/${EGG_GLOB}`,
-      }),
+      eggs: new EggLoader({ cwd: nestsRoot }),
     };
   }
 

@@ -6,7 +6,13 @@ export default {
   unstable: true,
 
   cache: './mod.ts',
-  start: './src/run.ts',
+  start: {
+    entry: './src/run.ts',
+    env: {
+      ENV_TYPE: 'production',
+      PORT: '3000',
+    },
+  },
   dev: {
     env: {
       ENV_TYPE: 'development',

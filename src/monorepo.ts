@@ -4,7 +4,7 @@ import { basename } from 'std/path/basename.ts';
 import { dirname } from 'std/path/dirname.ts';
 import { relative } from 'std/path/relative.ts';
 
-import { CompyLoader } from '~/compy.ts';
+import { Compy } from '~/compy.ts';
 import { ConfigLoader } from '~/config.ts';
 import { Embryo } from '~/embryo.ts';
 
@@ -71,11 +71,10 @@ export type ShellCommand = {
   log: ReturnType<typeof buildLogger>;
 };
 
-export const buildShell = async (cwd: string, cmd: Cmd, eggName: string, argv: string[]): Promise<ShellCommand> => {
+export const buildNative = async (compy: Compy, cmd: Cmd, eggName: string, argv: string[]): Promise<ShellCommand> => {
   assert(eggName, 'Missing package name');
   assert(cmd, 'Missing command');
 
-  const compy = await CompyLoader.from(cwd);
   const egg = await compy.eggs.load(eggName);
 
   // TODO(danilo-valente): provide ability to merge config files
@@ -161,7 +160,7 @@ export const buildShell = async (cwd: string, cmd: Cmd, eggName: string, argv: s
   ];
 
   return {
-    userCwd: cwd,
+    userCwd: compy.cwd,
     exec,
     cwd: egg.nest,
     args: commandArgs,
@@ -170,7 +169,7 @@ export const buildShell = async (cwd: string, cmd: Cmd, eggName: string, argv: s
   };
 };
 
-export const runShell = async ({ userCwd, cwd, exec, args, env, log }: ShellCommand) => {
+export const runNative = async ({ userCwd, cwd, exec, args, env, log }: ShellCommand) => {
   log('cwd:', relative(userCwd, cwd));
 
   log(
@@ -181,9 +180,7 @@ export const runShell = async ({ userCwd, cwd, exec, args, env, log }: ShellComm
 
   log(
     'env:',
-    ...Object.entries(env).map(([key, value]) =>
-      italic(`\n    - ${key}=${String(value).replace(/./g, '*')}`)
-    ),
+    ...Object.entries(env).map(([key, value]) => italic(`\n    - ${key}=${String(value).replace(/./g, '*')}`)),
   );
 
   const command = new Deno.Command(exec, {

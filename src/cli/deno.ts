@@ -1,35 +1,19 @@
-import { Command, StringType } from 'cliffy/command/mod.ts';
+import { Command } from 'cliffy/command/mod.ts';
 
-import { buildShell, Cmd, runShell } from '~/monorepo.ts';
-import { CompyLoader } from '~/compy.ts';
-
-let eggs: Record<string, URL>;
-
-const getEggs = async () => {
-  if (!eggs) {
-    const compy = await CompyLoader.from(Deno.cwd());
-    eggs = await compy.eggs.lookup();
-  }
-
-  return eggs;
-};
-
-class EggType extends StringType {
-  async complete() {
-    return Object.keys(await getEggs());
-  }
-}
+import { buildNative, Cmd, runNative } from '~/monorepo.ts';
+import { EggType, getCompy } from './util.ts';
 
 const buildCommand = (cmd: Cmd) =>
   new Command()
     .name(cmd)
     .type('egg', new EggType())
     .arguments('<module:egg>')
-    .stopEarly()
+    .useRawArgs()
     .action(async (_options, module, ...args) => {
-      const shell = await buildShell(Deno.cwd(), cmd, module, args);
+      const compy = await getCompy();
+      const native = await buildNative(compy, cmd, module, args);
 
-      const code = await runShell(shell);
+      const code = await runNative(native);
 
       Deno.exit(code);
     });

@@ -3,6 +3,7 @@ import { Command } from 'cliffy/command/mod.ts';
 import info from '../../info.json' assert { type: 'json' };
 
 import { cache, dev, fmt, lint, start, test } from './deno.ts';
+import { sh } from './sh.ts';
 
 export default new Command()
   .name('compy')
@@ -13,4 +14,5 @@ export default new Command()
   .command('lint', lint)
   .command('test', test)
   .command('start', start)
-  .command('dev', dev);
+  .command('dev', dev)
+  .command('sh', sh);
