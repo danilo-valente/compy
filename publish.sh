@@ -85,6 +85,7 @@ echo $info | jq --arg version "$version" '.version = $version' > "$info_file"
 git add "$info_file"
 
 git commit -m "release($version_tag): $version_desc"
+[ $? -ne 0 ] && echo "Failed to commit." && exit 1
 
 # Tag
 
@@ -99,7 +100,5 @@ fi
 
 # Publish
 
-if [ "${PUBLISH}" -eq 1 ]; then
-  git push "$remote" "$main_branch"
-  git push "$remote" --tags
-fi
+git push "$remote" "$main_branch"
+git push "$remote" --tags
