@@ -8,7 +8,11 @@ const [cmd, eggName, ...argv] = Deno.args;
 
 try {
   // FIXME(danilo-valente): provide proper type check
-  await compy(cmd as Cmd, eggName, argv);
+  const command = await compy(cmd as Cmd, eggName, argv);
+
+  const code = await command();
+
+  Deno.exit(code);
 } catch (error) {
   if (error instanceof ZodError) {
     const message = generateErrorMessage(error.issues, {

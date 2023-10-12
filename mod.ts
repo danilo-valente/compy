@@ -157,48 +157,51 @@ export default async (cmd: Cmd, eggName: string, argv: string[]) => {
     );
   };
 
-  log('cwd:', relative(Deno.cwd(), nest));
+  return async () => {
+    log('cwd:', relative(Deno.cwd(), nest));
 
-  log(
-    '$',
-    exec,
-    ...commandArgs,
-  );
+    log(
+      '$',
+      exec,
+      ...commandArgs,
+    );
 
-  log(
-    'env:',
-    ...Object.entries(env).map(([key, value]) => italic(`\n    - ${key}=${String(value).replace(/./g, '*')}`)),
-  );
+    log(
+      'env:',
+      ...Object.entries(env).map(([key, value]) => italic(`\n    - ${key}=${String(value).replace(/./g, '*')}`)),
+    );
 
-  const command = new Deno.Command(exec, {
-    cwd: nest,
-    env: env,
-    args: commandArgs,
-    stdin: 'piped',
-    stdout: 'piped',
-    stderr: 'piped',
-  });
+    const command = new Deno.Command(exec, {
+      cwd: nest,
+      env: env,
+      args: commandArgs,
+      stdin: 'piped',
+      stdout: 'piped',
+      stderr: 'piped',
+    });
 
-  const process = command.spawn();
+    const process = command.spawn();
 
-  process.stdout.pipeTo(Deno.stdout.writable);
-  process.stderr.pipeTo(Deno.stderr.writable);
+    process.stdout.pipeTo(Deno.stdout.writable);
+    process.stderr.pipeTo(Deno.stderr.writable);
 
-  Deno.addSignalListener('SIGINT', () => {
-    process.kill('SIGINT');
-    Deno.exit(0);
-  });
+    Deno.addSignalListener('SIGINT', () => {
+      process.kill('SIGINT');
+      Deno.exit(0);
+    });
 
-  Deno.addSignalListener('SIGTERM', () => {
-    process.kill('SIGTERM');
-    Deno.exit(1);
-  });
+    Deno.addSignalListener('SIGTERM', () => {
+      process.kill('SIGTERM');
+      Deno.exit(1);
+    });
 
-  // Deno.addSignalListener('SIGKILL', () => {
-  //   process.kill('SIGKILL');
-  //   Deno.exit(1);
-  // });
+    // Deno.addSignalListener('SIGKILL', () => {
+    //   process.kill('SIGKILL');
+    //   Deno.exit(1);
+    // });
 
-  const { code } = await process.status;
-  Deno.exit(code);
+    const { code } = await process.status;
+
+    return code;
+  };
 };
