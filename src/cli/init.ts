@@ -1,17 +1,11 @@
+import { resolve } from 'std/path/resolve.ts';
 import { blue, green } from 'std/fmt/colors.ts';
 import { Command } from 'cliffy/command/mod.ts';
 
 import projectTemplate from './templates/project.ts';
+import { fetchModuleVersion } from './util.ts';
 
 import info from '../../info.json' assert { type: 'json' };
-
-const getLatestVersion = async (module: string) => {
-  const response = await fetch(`https://apiland.deno.dev/v2/modules/${module}`);
-
-  const { latest_version } = await response.json();
-
-  return latest_version;
-};
 
 export const init = new Command()
   .name('init')
@@ -22,7 +16,7 @@ export const init = new Command()
   .option('-i, --import-map <importMap:string>', 'Import map file', { default: 'import_map.json' })
   .action(async ({ modules, config, importMap }, project) => {
     const [std] = await Promise.all([
-      getLatestVersion('std'),
+      fetchModuleVersion('std'),
     ]);
 
     const { directories, files } = projectTemplate({
@@ -31,15 +25,16 @@ export const init = new Command()
       config,
       importMap,
       versions: {
-        std,
+        deno: Deno.version.deno,
         compy: info.version,
+        std,
       },
     });
 
     await Deno.mkdir(project);
 
     await Promise.all(
-      directories.map((directory) => Deno.mkdir(`${project}/${directory}`)),
+      directories.map((directory) => Deno.mkdir(resolve(project, directory))),
     );
 
     await Promise.all(

@@ -1,3 +1,4 @@
+import { join } from 'std/path/join.ts';
 import * as toml from 'std/toml/mod.ts';
 
 export type ProjectConfig = {
@@ -6,8 +7,9 @@ export type ProjectConfig = {
   config: string;
   importMap: string;
   versions: {
-    std: string;
+    deno: string;
     compy: string;
+    std: string;
   };
 };
 
@@ -102,10 +104,12 @@ export default {
     `# ${name}`,
   ].join('\n');
 
-  const toolVersions = `deno ${Deno.version.deno}`;
+  const toolVersions = `deno ${versions.deno}`;
 
   const importMapJson = JSON.stringify({
-    imports: {},
+    imports: {
+      'std/': `https://deno.land/std@v${versions.std}/`,
+    },
     scopes: {},
   });
 
@@ -117,12 +121,13 @@ export default {
     files: {
       '.compy.ts': compyTs,
       [config]: denoJson,
+      [join(modules, '.gitkeep')]: '',
       '.editorconfig': editorconfig,
       'README.md': readmeMd,
       '.tool-versions': toolVersions,
       'import_map.json': importMapJson,
-      '.vscode/extensions.json': vscodeExtensionsJson,
-      '.vscode/settings.json': vscodeSettingsJson,
+      [join('.vscode', 'extensions.json')]: vscodeExtensionsJson,
+      [join('.vscode', 'settings.json')]: vscodeSettingsJson,
     },
   };
 };

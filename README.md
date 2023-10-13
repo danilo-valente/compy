@@ -30,6 +30,13 @@ compy -V
 compy init <project> [-m=packages] [-c=deno.json] [-i=import_map.json]
 ```
 
+### List or create a new module
+
+```sh
+compy mod
+compy mod [module]
+```
+
 ### Run a Deno command in a module's context
 
 ```sh
@@ -39,7 +46,7 @@ compy <cache|start|dev|test|fmt|lint> <module> [...args]
 ### Generate a shell script to run a Deno command in a module's context
 
 ```sh
-compy sh <cache|start|dev|test|fmt|lint> <module> [...args]
+compy <sh|bash|zsh|ash|fish> <cache|start|dev|test|fmt|lint> <module> [...args]
 ```
 
 ## Files

@@ -13,12 +13,17 @@ export const getCompy = async (): Promise<Compy> => {
   return compy;
 };
 
+export const getEggs = async (): Promise<string[]> => {
+  const compy = await getCompy();
+  const eggs = await compy.eggs.lookup();
+
+  return Object.keys(eggs);
+};
+
 export class EggType extends StringType {
   async complete() {
     try {
-      const compy = await getCompy();
-      const eggs = await compy.eggs.lookup();
-      return Object.keys(eggs);
+      return await getEggs();
     } catch {
       return [];
     }
@@ -30,3 +35,11 @@ export class CmdType extends EnumType<Cmd> {
     super(['cache', 'fmt', 'lint', 'test', 'start', 'dev']);
   }
 }
+
+export const fetchModuleVersion = async (module: string) => {
+  const response = await fetch(`https://apiland.deno.dev/v2/modules/${module}`);
+
+  const { latest_version } = await response.json();
+
+  return latest_version;
+};

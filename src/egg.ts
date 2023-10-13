@@ -78,7 +78,7 @@ export class EggLoader {
     const eggUrl = eggs[name];
 
     if (!eggUrl) {
-      throw new Deno.errors.NotFound(`Could not find egg "${name}/${this.glob}" in ${this.cwd} using glob`);
+      throw new Deno.errors.NotFound(`Could not find egg "${name}" (using glob "${this.glob}")`);
     }
 
     const eggModule = await import(eggUrl.href);

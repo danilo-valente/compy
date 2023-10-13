@@ -5,7 +5,6 @@ import { dirname } from 'std/path/dirname.ts';
 import { relative } from 'std/path/relative.ts';
 
 import { Compy } from '~/compy.ts';
-import { ConfigLoader } from '~/config.ts';
 import { Embryo } from '~/embryo.ts';
 
 import cacheDef from '~/commands/cache.ts';
@@ -78,8 +77,7 @@ export const buildNative = async (compy: Compy, cmd: Cmd, eggName: string, argv:
   const egg = await compy.eggs.load(eggName);
 
   // TODO(danilo-valente): provide ability to merge config files
-  const configLoader = new ConfigLoader({ cwd: compy.root, glob: compy.config.config });
-  const configPath = await configLoader.lookup();
+  const configPath = await compy.denoConfig.lookup();
 
   const buildCliCmd = (cmd: Cmd, embryo?: Embryo) => {
     const cliCmd = cli[cmd];

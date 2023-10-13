@@ -4,7 +4,8 @@ import { resolve } from 'std/path/resolve.ts';
 import { toFileUrl } from 'std/path/to_file_url.ts';
 import * as z from 'zod/mod.ts';
 
-import { EGG_GLOB, EggLoader } from '~/egg.ts';
+import { EggLoader } from '~/egg.ts';
+import { ConfigLoader } from '~/config.ts';
 
 export const COMPY_GLOB = '.compy.@(ts|json)';
 
@@ -26,6 +27,7 @@ export type Compy = {
   config: CompyConfig;
   nests: string;
   eggs: EggLoader;
+  denoConfig: ConfigLoader;
 };
 
 // export const zCompyShell = z.object({
@@ -79,6 +81,7 @@ export class CompyLoader {
       config: compyConfig,
       nests: nestsRoot,
       eggs: new EggLoader({ cwd: nestsRoot }),
+      denoConfig: new ConfigLoader({ cwd: compyRoot, glob: compyConfig.config }),
     };
   }
 
