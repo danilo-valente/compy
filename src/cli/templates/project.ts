@@ -13,6 +13,8 @@ export type ProjectConfig = {
   };
 };
 
+const encodeJson = (json: unknown) => JSON.stringify(json, null, 2);
+
 export default ({ name, modules, config, importMap, versions }: ProjectConfig) => {
   const compyTs = `import { Compy } from 'https://deno.land/x/compy@v${versions.compy}/types.ts';
 
@@ -22,7 +24,7 @@ export default {
 } satisfies Compy;
 `;
 
-  const denoJson = JSON.stringify({
+  const denoJson = encodeJson({
     lint: {
       include: ['**/*.ts'],
       exclude: ['**/fixtures/'],
@@ -71,32 +73,24 @@ export default {
     },
   });
 
-  const vscodeExtensionsJson = JSON.stringify(
-    {
-      recommendations: ['denoland.vscode-deno'],
-    },
-    null,
-    2,
-  );
+  const vscodeExtensionsJson = encodeJson({
+    recommendations: ['denoland.vscode-deno'],
+  });
 
-  const vscodeSettingsJson = JSON.stringify(
-    {
-      'deno.enable': true,
-      'deno.config': config,
-      'deno.lint': true,
-      'deno.unstable': true,
-      'javascript.preferences.quoteStyle': 'single',
-      'javascript.format.semicolons': 'insert',
-      'typescript.preferences.quoteStyle': 'single',
-      'typescript.format.semicolons': 'insert',
-      '[typescript]': {
-        'editor.defaultFormatter': 'denoland.vscode-deno',
-        'editor.formatOnSave': true,
-      },
+  const vscodeSettingsJson = encodeJson({
+    'deno.enable': true,
+    'deno.config': config,
+    'deno.lint': true,
+    'deno.unstable': true,
+    'javascript.preferences.quoteStyle': 'single',
+    'javascript.format.semicolons': 'insert',
+    'typescript.preferences.quoteStyle': 'single',
+    'typescript.format.semicolons': 'insert',
+    '[typescript]': {
+      'editor.defaultFormatter': 'denoland.vscode-deno',
+      'editor.formatOnSave': true,
     },
-    null,
-    2,
-  );
+  });
 
   const readmeMd = [
     '![Deno JS](https://img.shields.io/badge/deno%20js-000000?style=for-the-badge&logo=deno&logoColor=white)',
@@ -106,7 +100,7 @@ export default {
 
   const toolVersions = `deno ${versions.deno}`;
 
-  const importMapJson = JSON.stringify({
+  const importMapJson = encodeJson({
     imports: {
       'std/': `https://deno.land/std@v${versions.std}/`,
     },
