@@ -68,7 +68,7 @@ export class EggLoader {
   private readonly cwd: string;
   private readonly glob: string;
 
-  constructor({ cwd, rootDir, glob = EGG_GLOB }: EggLoaderArgs) {
+  constructor({ cwd, glob = EGG_GLOB }: EggLoaderArgs) {
     this.cwd = cwd;
     this.glob = glob;
   }

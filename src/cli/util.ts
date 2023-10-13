@@ -37,9 +37,24 @@ export class CmdType extends EnumType<Cmd> {
 }
 
 export const fetchModuleVersion = async (module: string) => {
+  // TODO(danilo-valente): parameterize registry API URL
   const response = await fetch(`https://apiland.deno.dev/v2/modules/${module}`);
 
   const { latest_version } = await response.json();
 
   return latest_version;
+};
+
+export const buildModuleUrl = async (aliasOrName: string, versionOrUrl?: string): Promise<URL> => {
+  // TODO(danilo-valente): parameterize registry URL
+  const REGISTRY = 'https://deno.land/';
+
+  if (versionOrUrl && URL.canParse(versionOrUrl)) {
+    return new URL(versionOrUrl);
+  }
+
+  const version = versionOrUrl || await fetchModuleVersion(aliasOrName);
+  const name = aliasOrName === 'std' ? 'std' : `x/${aliasOrName}`;
+
+  return new URL(`${name}@${version}/`, REGISTRY);
 };

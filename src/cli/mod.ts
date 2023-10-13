@@ -4,6 +4,7 @@ import info from '../../info.json' assert { type: 'json' };
 
 import { init } from './init.ts';
 import { mod } from './module.ts';
+import { add } from './add.ts';
 import { cache, dev, fmt, lint, start, test } from './deno.ts';
 import { sh } from './sh.ts';
 
@@ -14,6 +15,7 @@ export default new Command()
   // Management
   .command('init', init)
   .command('mod', mod)
+  .command('add', add)
   // Deno
   .command('cache', cache)
   .command('fmt', fmt)

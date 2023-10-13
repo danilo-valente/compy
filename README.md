@@ -37,6 +37,13 @@ compy mod
 compy mod [module]
 ```
 
+### Add external dependency to import_map.json
+
+```sh
+compy add <alias> <url>
+compy add <name> [version]
+```
+
 ### Run a Deno command in a module's context
 
 ```sh

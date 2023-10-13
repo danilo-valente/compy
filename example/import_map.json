@@ -1,12 +1,12 @@
 {
   "imports": {
-    "std/": "https://deno.land/std@v0.203.0/",
-    "@lib9/": "./packages/lib9/src/",
+    "std/": "https://deno.land/std@0.204.0/",
+    "@app/": "./packages/app/src/",
     "@lib/": "./packages/lib/src/"
   },
   "scopes": {
-    "./packages/lib9": {
-      "~/": "./packages/lib9/src/"
+    "./packages/app": {
+      "~/": "./packages/app/src/"
     },
     "./packages/lib": {
       "~/": "./packages/lib/src/"

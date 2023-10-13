@@ -26,9 +26,6 @@ const cli = {
 
 export type Cmd = keyof typeof cli;
 
-// TODO(danilo-valente): implement command to create new modules/eggs (lib and app)
-// TODO(danilo-valente): implement command to list all modules/eggs
-// TODO(danilo-valente): implement command to install modules (add to import_map with scope and cache files)
 // TODO(danilo-valente): add flag to specify env file
 
 // TODO(danilo-valente): multiple roots
@@ -124,17 +121,12 @@ export const buildNative = async (compy: Compy, cmd: Cmd, eggName: string, argv:
   const buildCmd = (cmd: string) => {
     switch (cmd) {
       case 'test':
-        return buildCliCmd(cmd, egg.config.test);
       case 'fmt':
-        return buildCliCmd(cmd, egg.config.fmt);
       case 'lint':
-        return buildCliCmd(cmd, egg.config.lint);
       case 'cache':
-        return buildCliCmd(cmd, egg.config.cache);
       case 'start':
-        return buildCliCmd(cmd, egg.config.start);
       case 'dev':
-        return buildCliCmd(cmd, egg.config.dev);
+        return buildCliCmd(cmd, egg.config[cmd]);
       case 'run':
         // TODO(danilo-valente): decide what to do with `run`
         throw new Deno.errors.InvalidData(`Unsupported (but reserved) command ${cmd}`);
