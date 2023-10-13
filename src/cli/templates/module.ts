@@ -41,7 +41,7 @@ WORKDIR /app
 ADD . .
 
 RUN deno install -n compy \
-  --allow-env --allow-read --allow-run --allow-sys --allow-net --unstable \
+  --allow-env --allow-read --allow-write --allow-run --allow-sys --allow-net --unstable \
   --import-map='https://deno.land/x/compy@v${versions.compy}/import_map.json' \
   -f 'https://deno.land/x/compy@v${versions.compy}/run.ts'
 

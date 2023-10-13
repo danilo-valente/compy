@@ -6,7 +6,7 @@ WORKDIR /app
 
 ADD . .
 
-RUN deno install -n compy   --allow-env --allow-read --allow-run --allow-sys --allow-net --unstable   --import-map='https://deno.land/x/compy@v0.0.8/import_map.json'   -f 'https://deno.land/x/compy@v0.0.8/run.ts'
+RUN deno install -n compy   --allow-env --allow-read --allow-write --allow-run --allow-sys --allow-net --unstable   --import-map='https://deno.land/x/compy@v0.0.8/import_map.json'   -f 'https://deno.land/x/compy@v0.0.8/run.ts'
 
 # Cache the main app so that it doesn't need to be cached on each startup/entry.
 RUN compy cache lib
