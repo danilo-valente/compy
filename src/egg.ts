@@ -31,14 +31,10 @@ export const zEggConfig = z.object({
     { ENV_TYPE: 'development' },
   ),
   run: z.record(zEmbryo(runFlags, {})),
-  /**
-   * @deprecated
-   */
-  ext: z.record(zEmbryo(allFlags, {})),
 })
   .partial()
   .merge(allFlags)
-  .transform(({ entry, cache, test, fmt, lint, start, dev, run, ext, ...flags }) => ({
+  .transform(({ entry, cache, test, fmt, lint, start, dev, run, ...flags }) => ({
     entry,
     cache,
     test,
@@ -47,10 +43,6 @@ export const zEggConfig = z.object({
     start,
     dev,
     run,
-    /**
-     * @deprecated
-     */
-    ext,
     flags,
   }));
 

@@ -47,13 +47,15 @@ compy add <name> [version]
 ### Run a Deno command in a module's context
 
 ```sh
-compy <cache|start|dev|test|fmt|lint> <module> [...args]
+compy <cache|start|dev|run|test|fmt|lint> <module> [...args]
+compy <run> <module> <task> [...args]
 ```
 
 ### Generate a shell script to run a Deno command in a module's context
 
 ```sh
-compy <sh|bash|zsh|ash|fish> <cache|start|dev|test|fmt|lint> <module> [...args]
+compy <cache|start|dev|run|test|fmt|lint> -e <sh|bash|zsh|ash|fish> <module> [...args]
+compy <run> -e <sh|bash|zsh|ash|fish> <module> <task> [...args]
 ```
 
 ## Files

@@ -5,7 +5,11 @@ import { generateErrorMessage } from 'npm:zod-error';
 import cli from '~/cli/mod.ts';
 
 try {
-  await cli.parse(Deno.args);
+  const code = await cli.parse(Deno.args);
+
+  if (typeof code === 'number' && code !== 0) {
+    Deno.exit(code);
+  }
 } catch (error) {
   if (error instanceof ZodError) {
     const message = generateErrorMessage(error.issues, {

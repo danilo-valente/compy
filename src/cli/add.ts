@@ -8,7 +8,7 @@ export const add = new Command()
   .description('Add a module alias to import_map.json')
   .arguments('<alias:string> <url:string>')
   .arguments('<name:string> [version:string]')
-  .option('-m, --module [module:string]', 'Module name')
+  .option('-m, --module <module:string>', 'Module name')
   .action(async ({ module }, alias, maybeUrl) => {
     const compy = await getCompy();
 

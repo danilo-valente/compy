@@ -5,8 +5,7 @@ import info from '../../info.json' assert { type: 'json' };
 import { init } from './init.ts';
 import { mod } from './module.ts';
 import { add } from './add.ts';
-import { cache, dev, fmt, lint, start, test } from './deno.ts';
-import { ash, bash, fish, sh, zsh } from './sh.ts';
+import { cache, dev, fmt, lint, run, start, test } from './deno.ts';
 
 export default new Command()
   .name('compy')
@@ -23,9 +22,4 @@ export default new Command()
   .command('test', test)
   .command('start', start)
   .command('dev', dev)
-  // sh
-  .command('sh', sh)
-  .command('bash', bash)
-  .command('zsh', zsh)
-  .command('ash', ash)
-  .command('fish', fish);
+  .command('run', run);

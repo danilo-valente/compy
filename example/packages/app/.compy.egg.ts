@@ -28,9 +28,9 @@ export default {
   fmt: './src/',
   lint: './src/',
   run: {
-    migrate: {
-      entry: './ley/cli.ts',
-      lock: 'ley.deno.lock',
+    script: {
+      entry: './script.ts',
+      lock: 'script.deno.lock',
     },
   },
 } satisfies Egg;

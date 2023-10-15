@@ -10,6 +10,6 @@ export const allFlags = z.object({
   ...lock,
   ...runtime,
   ...watch,
-}).strict();
+});
 
 export type AllFlags = z.infer<typeof allFlags>;
