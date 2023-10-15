@@ -31,6 +31,9 @@ export const zEggConfig = z.object({
     { ENV_TYPE: 'development' },
   ),
   run: z.record(zEmbryo(runFlags, {})),
+  /**
+   * @deprecated
+   */
   ext: z.record(zEmbryo(allFlags, {})),
 })
   .partial()
@@ -44,6 +47,9 @@ export const zEggConfig = z.object({
     start,
     dev,
     run,
+    /**
+     * @deprecated
+     */
     ext,
     flags,
   }));

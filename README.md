@@ -91,8 +91,5 @@ export default {
   },
   fmt: './src/',
   lint: './src/',
-  // ext: {
-  //   tag: 'git tag',
-  // },
 } satisfies Egg;
 ```

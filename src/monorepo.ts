@@ -105,8 +105,13 @@ export const buildNative = async (compy: Compy, cmd: Cmd, eggName: string, argv:
     };
   };
 
+  /**
+   * @deprecated
+   */
   const buildExtCmd = (cmd: string) => {
-    // TODO(danilo-valente): implement command inheritance
+    /**
+     * @deprecated
+     */
     const extCmd = egg.config.ext?.[cmd];
     assert(extCmd, `Missing extended command ${cmd}`);
 
@@ -118,7 +123,8 @@ export const buildNative = async (compy: Compy, cmd: Cmd, eggName: string, argv:
     };
   };
 
-  const buildCmd = (cmd: string) => {
+    // TODO(danilo-valente): implement command inheritance
+    const buildCmd = (cmd: string) => {
     switch (cmd) {
       case 'test':
       case 'fmt':
@@ -136,6 +142,9 @@ export const buildNative = async (compy: Compy, cmd: Cmd, eggName: string, argv:
       return buildCliCmd('run', egg.config.run[cmd]);
     }
 
+    /**
+     * @deprecated
+     */
     if (cmd in (egg.config.ext ?? {})) {
       return buildExtCmd(cmd);
     }

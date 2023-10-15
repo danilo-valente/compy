@@ -34,7 +34,4 @@ export default {
       lock: 'ley.deno.lock',
     },
   },
-  ext: {
-    'test.watch': '--watch=src/,spec/',
-  },
 } satisfies Egg;
