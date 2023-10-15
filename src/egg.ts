@@ -18,17 +18,20 @@ export const EGG_GLOB = '.compy.egg.@(ts|json)';
 
 export const zEggConfig = z.object({
   entry: zEntry,
-  cache: zEmbryo(cacheFlags),
-  test: zEmbryo(testFlags),
-  fmt: zEmbryo(fmtFlags),
-  lint: zEmbryo(lintFlags),
-  start: zEmbryo(runFlags),
-  dev: zEmbryo(runFlags),
-  // dev: zEmbryo(runFlags.extend({
-  //   watch: runFlags.shape.watch.default(true),
-  // })),
-  run: z.record(zEmbryo(runFlags)),
-  ext: z.record(zEmbryo(allFlags)),
+  cache: zEmbryo(cacheFlags, {}),
+  test: zEmbryo(testFlags, { ENV_TYPE: 'test' }),
+  fmt: zEmbryo(fmtFlags, {}),
+  lint: zEmbryo(lintFlags, {}),
+  start: zEmbryo(runFlags, {}),
+  dev: zEmbryo(
+    runFlags.extend({
+      watch: runFlags.shape.watch.default(true),
+      check: runFlags.shape.check.default(true),
+    }),
+    { ENV_TYPE: 'development' },
+  ),
+  run: z.record(zEmbryo(runFlags, {})),
+  ext: z.record(zEmbryo(allFlags, {})),
 })
   .partial()
   .merge(allFlags)

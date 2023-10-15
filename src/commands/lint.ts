@@ -4,8 +4,9 @@ import { cli, CliDefinition } from '~/deno-cli.ts';
 import { compilation, compilationTransformer } from '~/flags/compilation.ts';
 
 // TODO(danilo-valente): check flag support mapping
-export const lintFlags = z.object({})
-  .merge(compilation);
+export const lintFlags = z.object({
+  ...compilation,
+});
 
 const lintCliFlags = lintFlags.transform((flags) => [
   ...compilationTransformer(flags),

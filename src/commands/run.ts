@@ -7,10 +7,12 @@ import { lock, lockTransformer } from '~/flags/lock.ts';
 import { runtime, runtimeTransformer } from '~/flags/runtime.ts';
 
 // TODO(danilo-valente): check flag support mapping
-export const runFlags = watch
-  .merge(lock)
-  .merge(compilation)
-  .merge(runtime);
+export const runFlags = z.object({
+  ...compilation,
+  ...watch,
+  ...lock,
+  ...runtime,
+}).strict();
 
 const runCliFlags = runFlags.transform((flags) => [
   ...watchTransformer(flags),

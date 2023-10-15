@@ -4,8 +4,6 @@ export default {
   entry: './src/mod.ts',
 
   dev: {
-    watch: true,
-    check: true,
     env: {
       ENV_TYPE: 'development',
     },

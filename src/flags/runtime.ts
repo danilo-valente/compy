@@ -4,7 +4,7 @@ import { buildPermissions, permissionFlags } from '~/permissions.ts';
 
 export const runtimeInspect = z.union([z.string(), z.tuple([z.string(), z.number()])]);
 
-export const runtime = z.object({
+export const runtime = {
   allow: z.union([
     permissionFlags.optional(),
     z.literal(true).optional(),
@@ -18,9 +18,11 @@ export const runtime = z.object({
   prompt: z.boolean().optional(),
   seed: z.number().optional(),
   v8Flags: z.string().optional(),
-}).strict();
+};
 
-export const runtimeTransformer = (flags: z.infer<typeof runtime>) =>
+const runtimeSchema = z.object(runtime).strict();
+
+export const runtimeTransformer = (flags: z.infer<typeof runtimeSchema>) =>
   [
     ...flags.allow === true ? ['-A'] : buildPermissions(flags.allow ?? [], 'allow'),
     ...buildPermissions(flags.deny ?? [], 'deny'),

@@ -5,9 +5,11 @@ import { lock } from './lock.ts';
 import { runtime } from './runtime.ts';
 import { watch } from './watch.ts';
 
-export const allFlags = lock
-  .merge(watch)
-  .merge(compilation)
-  .merge(runtime);
+export const allFlags = z.object({
+  ...compilation,
+  ...lock,
+  ...runtime,
+  ...watch,
+}).strict();
 
 export type AllFlags = z.infer<typeof allFlags>;

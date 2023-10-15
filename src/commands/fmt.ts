@@ -5,9 +5,10 @@ import { compilation, compilationTransformer } from '~/flags/compilation.ts';
 import { watch, watchTransformer } from '~/flags/watch.ts';
 
 // TODO(danilo-valente): check flag support mapping
-export const fmtFlags = z.object({})
-  .merge(compilation)
-  .merge(watch);
+export const fmtFlags = z.object({
+  ...compilation,
+  ...watch,
+});
 
 const fmtCliFlags = fmtFlags.transform((flags) => [
   ...watchTransformer(flags),
