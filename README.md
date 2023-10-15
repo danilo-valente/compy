@@ -64,6 +64,7 @@ compy <sh|bash|zsh|ash|fish> <cache|start|dev|test|fmt|lint> <module> [...args]
 import { Compy } from 'https://deno.land/x/compy/types.ts';
 
 export default {
+  name: 'my-project',
   modules: 'packages',
   config: 'deno.jsonc',
 } satisfies Compy;

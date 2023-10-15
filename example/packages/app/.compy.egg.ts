@@ -20,7 +20,6 @@ export default {
   },
   test: {
     entry: 'spec/',
-    // TODO(danilo-valente): extend test.deno.lock from deno.lock
     lock: 'test.deno.lock',
     env: {
       ENV_TYPE: 'test',

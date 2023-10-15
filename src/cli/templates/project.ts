@@ -19,6 +19,7 @@ export default ({ name, modules, config, importMap, versions }: ProjectConfig) =
   const compyTs = `import { Compy } from 'https://deno.land/x/compy@v${versions.compy}/types.ts';
 
 export default {
+  name: '${name}',
   modules: '${modules}',
   config: '${config}',
 } satisfies Compy;

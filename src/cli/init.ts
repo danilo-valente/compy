@@ -10,17 +10,20 @@ import info from '../../info.json' assert { type: 'json' };
 export const init = new Command()
   .name('init')
   .description('Create a new Compy project')
-  .arguments('<project:string>')
+  .arguments('<name:string>')
+  .option('-d --directory <directory:string>', 'Root directory', { required: false })
   .option('-m, --modules <modules:string>', 'Modules directory', { default: 'packages' })
   .option('-c, --config <config:string>', 'Config file', { default: 'deno.json' })
   .option('-i, --import-map <importMap:string>', 'Import map file', { default: 'import_map.json' })
-  .action(async ({ modules, config, importMap }, project) => {
+  .action(async ({ directory: maybeRoot, modules, config, importMap }, name) => {
+    const root = maybeRoot ?? name;
+
     const [std] = await Promise.all([
       fetchModuleVersion('std'),
     ]);
 
     const { directories, files } = projectTemplate({
-      name: project,
+      name,
       modules,
       config,
       importMap,
@@ -31,17 +34,17 @@ export const init = new Command()
       },
     });
 
-    await Deno.mkdir(project);
+    await Deno.mkdir(name);
 
     await Promise.all(
-      directories.map((directory) => Deno.mkdir(resolve(project, directory))),
+      directories.map((directory) => Deno.mkdir(resolve(root, directory))),
     );
 
     await Promise.all(
-      Object.entries(files).map(([file, content]) => Deno.writeTextFile(`${project}/${file}`, content)),
+      Object.entries(files).map(([file, content]) => Deno.writeTextFile(`${root}/${file}`, content)),
     );
 
-    console.log(green(`Created project ${blue(project)}:`));
+    console.log(green(`Created project ${blue(name)}:`));
 
     const objects = [
       ...directories.map((directory) => `${directory}/`),
