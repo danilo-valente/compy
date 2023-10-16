@@ -120,7 +120,7 @@ export default {
       '.editorconfig': editorconfig,
       'README.md': readmeMd,
       '.tool-versions': toolVersions,
-      'import_map.json': importMapJson,
+      [importMap]: importMapJson,
       [join('.vscode', 'extensions.json')]: vscodeExtensionsJson,
       [join('.vscode', 'settings.json')]: vscodeSettingsJson,
     },

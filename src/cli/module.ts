@@ -18,11 +18,10 @@ const list = async () => {
 };
 
 const addToImportMap = async (module: string, compy: Compy) => {
-  // TODO(danilo-valente): parameterize import map file name
-  const IMPORT_MAP = './import_map.json';
+  const importMapPath = compy.denoConfig.config.importMap;
 
   const importMap = JSON.parse(
-    await Deno.readTextFile(IMPORT_MAP),
+    await Deno.readTextFile(importMapPath),
   );
 
   const moduleRoot = `./${compy.config.modules}/${module}`;
@@ -32,7 +31,7 @@ const addToImportMap = async (module: string, compy: Compy) => {
     '~/': `${moduleRoot}/src/`,
   };
 
-  await Deno.writeTextFile(IMPORT_MAP, JSON.stringify(importMap, null, 2));
+  await Deno.writeTextFile(importMapPath, JSON.stringify(importMap, null, 2));
 };
 
 const create = async (module: string) => {

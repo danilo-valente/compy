@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+trap "exit" INT
+
 # Validate arguments
 
 version="$1"

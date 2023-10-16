@@ -80,9 +80,6 @@ export const buildNative = async (
 
   const egg = await compy.eggs.load(eggName);
 
-  // TODO(danilo-valente): provide ability to merge config files
-  const configPath = await compy.denoConfig.lookup();
-
   const buildEmbryo = () => {
     if (cmd === 'run') {
       const embryo = egg.config.run?.[script];
@@ -117,7 +114,8 @@ export const buildNative = async (
 
     assert(mergedEmbryo.entry, 'Missing entry file');
 
-    const configRelativePath = configPath ? relative(egg.nest, configPath) : null;
+    // TODO(danilo-valente): provide ability to merge config files
+    const configRelativePath = relative(egg.nest, compy.denoConfig.path);
     const { command, args } = cliCmd.build(configRelativePath, mergedEmbryo.flags);
 
     return {

@@ -5,7 +5,9 @@ import { toFileUrl } from 'std/path/to_file_url.ts';
 import * as z from 'zod/mod.ts';
 
 import { EggLoader } from '~/egg.ts';
-import { ConfigLoader } from '~/config.ts';
+import { assert } from 'std/assert/assert.ts';
+
+import { ConfigLoader, DenoConfigContext } from '~/config.ts';
 
 export const COMPY_GLOB = '.compy.@(ts|json)';
 
@@ -29,7 +31,7 @@ export type Compy = {
   config: CompyConfig;
   nests: string;
   eggs: EggLoader;
-  denoConfig: ConfigLoader;
+  denoConfig: DenoConfigContext;
 };
 
 // export const zCompyShell = z.object({
@@ -77,13 +79,17 @@ export class CompyLoader {
     const compyRoot = dirname(compyUrl.pathname);
     const nestsRoot = resolve(compyRoot, compyConfig.modules);
 
+    const configLoader = new ConfigLoader({ cwd: compyRoot, glob: compyConfig.config });
+    const denoConfig = await configLoader.load(compyRoot);
+    assert(denoConfig, `Missing config file: ${compyConfig.config}`);
+
     return {
       cwd: this.cwd,
       root: compyRoot,
       config: compyConfig,
       nests: nestsRoot,
       eggs: new EggLoader({ cwd: nestsRoot }),
-      denoConfig: new ConfigLoader({ cwd: compyRoot, glob: compyConfig.config }),
+      denoConfig: denoConfig,
     };
   }
 

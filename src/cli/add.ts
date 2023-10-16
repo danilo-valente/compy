@@ -5,18 +5,17 @@ import { buildModuleUrl, getCompy } from './util.ts';
 
 export const add = new Command()
   .name('add')
-  .description('Add a module alias to import_map.json')
+  .description('Add a module alias to import map')
   .arguments('<alias:string> <url:string>')
   .arguments('<name:string> [version:string]')
   .option('-m, --module <module:string>', 'Module name')
   .action(async ({ module }, alias, maybeUrl) => {
     const compy = await getCompy();
 
-    // TODO(danilo-valente): parameterize import map file name
-    const IMPORT_MAP = './import_map.json';
+    const importMapPath = compy.denoConfig.config.importMap;
 
     const importMap = JSON.parse(
-      await Deno.readTextFile(IMPORT_MAP),
+      await Deno.readTextFile(importMapPath),
     );
 
     const url = await buildModuleUrl(alias, maybeUrl);
@@ -32,7 +31,7 @@ export const add = new Command()
       importMap.imports[`${alias}/`] = url;
     }
 
-    await Deno.writeTextFile(IMPORT_MAP, JSON.stringify(importMap, null, 2));
+    await Deno.writeTextFile(importMapPath, JSON.stringify(importMap, null, 2));
 
     console.log(green(`Added ${blue(alias)} from ${blue(url.toString())}`));
   });
