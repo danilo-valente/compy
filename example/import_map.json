@@ -1,8 +1,8 @@
 {
   "imports": {
+    "@my-project/app/": "./packages/app/src/",
+    "@my-project/lib/": "./packages/lib/src/",
     "std/": "https://deno.land/std@0.204.0/",
-    "@app/": "./packages/app/src/",
-    "@lib/": "./packages/lib/src/"
   },
   "scopes": {
     "./packages/app/": {

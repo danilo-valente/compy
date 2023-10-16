@@ -13,15 +13,14 @@ export const COMPY_GLOB = '.compy.@(ts|json)';
 
 export const zCompyConfig = z.object({
   name: z.string(),
-  modules: z.string().default('packages'),
-  config: z.string().default('deno.@(jsonc|json)'),
-})
-  .partial()
-  .pipe(z.object({
-    name: z.string(),
-    modules: z.string(),
-    config: z.string(),
-  }));
+  modules: z.string().optional().default('packages'),
+  config: z.string().optional().default('deno.@(jsonc|json)'),
+  aliasFn: z.function()
+    .args(z.string())
+    .returns(z.string())
+    .optional()
+    .default(() => (module: string) => `@${module}/`),
+});
 
 export type CompyConfig = z.infer<typeof zCompyConfig>;
 

@@ -34,11 +34,11 @@ try {
 
     console.error(red(message));
   } else if (error instanceof Deno.errors.InvalidData) {
-    console.error(error.message);
+    console.error(red(error.message));
   } else if (error instanceof Deno.errors.NotFound) {
-    console.error(error.message);
+    console.error(red(error.message));
   } else {
-    console.error(error);
+    console.error(red(error));
   }
 
   Deno.exit(1);
