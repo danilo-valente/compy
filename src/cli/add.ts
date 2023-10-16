@@ -1,15 +1,16 @@
 import { blue, green } from 'std/fmt/colors.ts';
 import { Command } from 'cliffy/command/mod.ts';
 
-import { buildModuleUrl, getCompy } from './util.ts';
+import { buildDenoLandUrl, getCompy, UrlType } from './util.ts';
 
 export const add = new Command()
   .name('add')
   .description('Add a module alias to import map')
-  .arguments('<alias:string> <url:string>')
+  .type('url', new UrlType())
   .arguments('<name:string> [version:string]')
   .option('-m, --module <module:string>', 'Module name')
-  .action(async ({ module }, alias, maybeUrl) => {
+  .option('-u, --url <url:url>', 'Source URL')
+  .action(async ({ module: maybeModule, url: maybeUrl }, name, maybeVersion) => {
     const compy = await getCompy();
 
     const importMapPath = compy.denoConfig.config.importMap;
@@ -18,20 +19,20 @@ export const add = new Command()
       await Deno.readTextFile(importMapPath),
     );
 
-    const url = await buildModuleUrl(alias, maybeUrl);
+    const url = await buildDenoLandUrl({ name, maybeVersion, maybeUrl });
 
-    if (module) {
-      const moduleRoot = `./${compy.config.modules}/${module}`;
+    if (maybeModule) {
+      const moduleRoot = `./${compy.config.modules}/${maybeModule}/`;
 
       importMap.scopes[moduleRoot] = {
         ...importMap.scopes[moduleRoot] ?? {},
-        [`${alias}/`]: url,
+        [name]: url,
       };
     } else {
-      importMap.imports[`${alias}/`] = url;
+      importMap.imports[name] = url;
     }
 
     await Deno.writeTextFile(importMapPath, JSON.stringify(importMap, null, 2));
 
-    console.log(green(`Added ${blue(alias)} from ${blue(url.toString())}`));
+    console.log(green(`Added ${blue(name)} from ${blue(url.toString())}`));
   });

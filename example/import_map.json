@@ -5,10 +5,10 @@
     "@lib/": "./packages/lib/src/"
   },
   "scopes": {
-    "./packages/app": {
+    "./packages/app/": {
       "~/": "./packages/app/src/"
     },
-    "./packages/lib": {
+    "./packages/lib/": {
       "~/": "./packages/lib/src/"
     }
   }

@@ -1,6 +1,12 @@
 # Compy
 Minimalist (yet helpful) monorepo manager for Deno
 
+## Motivation
+
+- [Does deno support monorepo? #9126](https://github.com/denoland/deno/discussions/9126)
+- [Microservices with Deno as a Monorepo #18143](https://github.com/denoland/deno/discussions/18143)
+- [Support deno.config in a multi-root workspace #501](https://github.com/denoland/vscode_deno/issues/501)
+
 ## Installation
 
 ```sh
@@ -40,8 +46,7 @@ compy mod [module]
 ### Add external dependency to import_map.json
 
 ```sh
-compy add <alias> <url>
-compy add <name> [version]
+compy add <name> [version] [-m <module>] [-u <url>]
 ```
 
 ### Run a Deno command in a module's context

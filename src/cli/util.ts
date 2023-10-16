@@ -1,4 +1,4 @@
-import { EnumType, StringType } from 'cliffy/command/mod.ts';
+import { ArgumentValue, EnumType, StringType, Type } from 'cliffy/command/mod.ts';
 
 import { Compy, CompyLoader } from '~/compy.ts';
 import { Cmd } from '~/monorepo.ts';
@@ -20,6 +20,12 @@ export const getEggs = async (): Promise<string[]> => {
   return Object.keys(eggs);
 };
 
+export class UrlType extends Type<URL> {
+  parse({ value }: ArgumentValue) {
+    return new URL(value);
+  }
+}
+
 export class EggType extends StringType {
   async complete() {
     try {
@@ -38,23 +44,40 @@ export class CmdType extends EnumType<Cmd> {
 
 export const fetchModuleVersion = async (module: string) => {
   // TODO(danilo-valente): parameterize registry API URL
-  const response = await fetch(`https://apiland.deno.dev/v2/modules/${module}`);
+  const response = await fetch(`https://apiland.deno.dev/v2/modules/${module.replace(/\/+$/, '')}`);
 
   const { latest_version } = await response.json();
 
   return latest_version;
 };
 
-export const buildModuleUrl = async (aliasOrName: string, versionOrUrl?: string): Promise<URL> => {
-  // TODO(danilo-valente): parameterize registry URL
-  const REGISTRY = 'https://deno.land/';
+type BuildDenoLandUrlArgs = {
+  name: string;
+  maybeVersion?: string;
+  maybeUrl?: URL;
+};
 
-  if (versionOrUrl && URL.canParse(versionOrUrl)) {
-    return new URL(versionOrUrl);
+export const buildDenoLandUrl = async ({ name, maybeVersion, maybeUrl }: BuildDenoLandUrlArgs): Promise<URL> => {
+  if (maybeUrl) {
+    if (maybeVersion) {
+      console.warn('Warning: version argument will be ignored in favor of URL');
+    }
+
+    return maybeUrl;
   }
 
-  const version = versionOrUrl || await fetchModuleVersion(aliasOrName);
-  const name = aliasOrName === 'std' ? 'std' : `x/${aliasOrName}`;
+  // TODO(danilo-valente): parameterize registry URL / add support for other registries
+  const REGISTRY = 'https://deno.land/';
 
-  return new URL(`${name}@${version}/`, REGISTRY);
+  const prefix = name === 'std' ? '' : 'x/';
+  const suffix = name.endsWith('/') ? '/' : '';
+
+  // TODO(danilo-valente): handle names that are already in format name@version
+  const version = maybeVersion || await fetchModuleVersion(name);
+  if (version) {
+    return new URL(`${prefix}${name}@${version}${suffix}`, REGISTRY);
+  }
+
+  console.warn('Warning: could not find latest version for module. Falling back to latest');
+  return new URL(`${prefix}${name}${suffix}`, REGISTRY);
 };
