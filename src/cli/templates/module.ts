@@ -46,7 +46,7 @@ RUN deno install -n compy \
 # Cache the main app so that it doesn't need to be cached on each startup/entry.
 RUN compy cache ${name}
 
-RUN compy ash start ${name} > compy.sh && chmod +x compy.sh
+RUN compy start -e ash ${name} > compy.sh && chmod +x compy.sh
 
 CMD ["./compy.sh"]
 `;
