@@ -38,7 +38,7 @@ try {
   } else if (error instanceof Deno.errors.NotFound) {
     console.error(red(error.message));
   } else {
-    console.error(red(error));
+    console.error(red(error.stack || error.message));
   }
 
   Deno.exit(1);
