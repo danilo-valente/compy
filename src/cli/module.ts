@@ -24,10 +24,10 @@ const addToImportMap = async (module: string, compy: Compy) => {
     await Deno.readTextFile(importMapPath),
   );
 
-  const moduleRoot = `./${compy.config.modules}/${module}`;
+  const moduleRoot = `./${compy.config.modules}/${module}/`;
 
   const alias = compy.config.aliasFn(module);
-  const target = `${moduleRoot}/src/`;
+  const target = `${moduleRoot}src/`;
 
   importMap.imports[alias] = target;
   importMap.scopes[moduleRoot] = { '~/': target };
