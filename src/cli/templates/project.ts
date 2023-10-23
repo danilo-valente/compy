@@ -83,6 +83,7 @@ export default {
     'deno.config': config,
     'deno.lint': true,
     'deno.unstable': true,
+    'editor.defaultFormatter': 'denoland.vscode-deno',
     'javascript.preferences.quoteStyle': 'single',
     'javascript.format.semicolons': 'insert',
     'typescript.preferences.quoteStyle': 'single',
@@ -91,6 +92,15 @@ export default {
       'editor.defaultFormatter': 'denoland.vscode-deno',
       'editor.formatOnSave': true,
     },
+    '[typescriptreact]': {
+      'editor.defaultFormatter': 'denoland.vscode-deno'
+    },
+    '[javascriptreact]': {
+      'editor.defaultFormatter': 'denoland.vscode-deno'
+    },
+    '[javascript]': {
+      'editor.defaultFormatter': 'denoland.vscode-deno'
+    }
   });
 
   const readmeMd = [
