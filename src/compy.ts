@@ -16,7 +16,7 @@ export const zCompyConfig = z.object({
     .args(z.string())
     .returns(z.string())
     .optional()
-    .default(() => (module: string) => `@${module}/`),
+    .default(() => (module: string) => `~${module}/`),
 });
 
 export type CompyConfig = z.infer<typeof zCompyConfig>;
