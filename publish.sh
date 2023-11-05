@@ -66,6 +66,11 @@ fi
 check=`deno check run.ts types.ts`
 [ $? -ne 0 ] && echo "Deno Check failed." && exit 1
 
+# Deno Check & Test
+
+check=`deno fmt --check`
+[ $? -ne 0 ] && echo "Deno Fmt failed." && exit 1
+
 # if [ $? -ne 0 ]; then
 #   echo "Tests failed."
 #   exit 1
