@@ -9,7 +9,7 @@ export type ModuleConfig = {
 };
 
 export default ({ name, versions }: ModuleConfig) => {
-  const compyEggTs = `import { Egg } from 'https://deno.land/x/compy@v${versions.compy}/types.ts';
+  const compyEggTs = `import { Egg } from '$compy/types.ts';
 
 export default {
   entry: './src/mod.ts',

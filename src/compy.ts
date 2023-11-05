@@ -1,3 +1,4 @@
+import { bundle } from 'https://deno.land/x/emit/mod.ts';
 import { dirname, expandGlob, resolve, toFileUrl } from '../deps/std.ts';
 import * as z from '../deps/zod.ts';
 
@@ -68,7 +69,53 @@ export class CompyLoader {
       );
     }
 
-    const compyModule = await import(compyUrl.href);
+    let compyModule;
+
+    const started = Date.now();
+
+    if (false) {
+      compyModule = await import(compyUrl.href);
+    } else {
+      const tsToUrl = (code: string) => `data:application/typescript,${encodeURIComponent(code)}`;
+
+      const isModule = true;
+
+      const sandboxed = await bundle(compyUrl.href, {
+        importMap: new URL('./import_map.json', compyUrl.href),
+        type: isModule ? 'module' : 'classic',
+        // importMap: {
+        //   imports: {
+        //     '$compy/': import.meta.resolve('../'),
+        //   },
+        // },
+      });
+
+      compyModule = isModule
+        ? await import(tsToUrl(sandboxed.code))
+        : await new Promise<unknown & { default?: unknown }>((resolve, reject) => {
+          const bundler = `
+          const compy = ${sandboxed.code}
+    
+          self.postMessage(compy.default);
+    
+          self.close();
+        `;
+
+          const worker = new Worker(tsToUrl(bundler), { type: 'module' });
+
+          worker.addEventListener('message', (e) => {
+            worker.terminate();
+            resolve(e.data);
+          });
+
+          worker.addEventListener('error', (e) => {
+            worker.terminate();
+            reject(e.error);
+          });
+        });
+    }
+
+    console.log(`Loaded Compy project in ${Date.now() - started}ms`);
 
     const compyConfig = zCompyConfig.parse(compyModule.default ?? compyModule);
 

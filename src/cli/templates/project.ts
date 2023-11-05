@@ -15,7 +15,7 @@ export type ProjectConfig = {
 const encodeJson = (json: unknown) => JSON.stringify(json, null, 2);
 
 export default ({ name, modules, config, importMap, versions }: ProjectConfig) => {
-  const compyTs = `import { Compy } from 'https://deno.land/x/compy@v${versions.compy}/types.ts';
+  const compyTs = `import { Compy } from '$compy/types.ts';
 
 export default {
   name: '${name}',
@@ -110,9 +110,14 @@ export default {
 
   const toolVersions = `deno ${versions.deno}`;
 
+  const compyRoot = new URL(import.meta.url).protocol === 'file:'
+    ? `${dirname(import.meta.resolve('../../'))}/`
+    : `https://deno.land/x/compy@v${versions.compy}/`;
+
   const importMapJson = encodeJson({
     imports: {
       'std/': `https://deno.land/std@v${versions.std}/`,
+      '$compy/': compyRoot,
     },
     scopes: {},
   });
