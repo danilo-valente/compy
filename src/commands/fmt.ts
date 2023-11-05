@@ -19,7 +19,7 @@ const fmtCli = cli('fmt');
 
 export default {
   flags: fmtFlags,
-  build(configPath, flags) {
-    return fmtCli(configPath, fmtCliFlags.parse(flags));
+  build(flags) {
+    return fmtCli(fmtCliFlags.parse(flags));
   },
 } satisfies CliDefinition<z.infer<typeof fmtFlags>>;

@@ -112,7 +112,10 @@ export const buildNative = async (
 
     // TODO(danilo-valente): provide ability to merge config files
     const configRelativePath = relative(egg.nest, compy.denoConfig.path);
-    const { command, args } = cliCmd.build(configRelativePath, mergedEmbryo.flags);
+    const { command, args } = cliCmd.build({
+      config: configRelativePath,
+      ...mergedEmbryo.flags,
+    });
 
     return {
       exec: command,

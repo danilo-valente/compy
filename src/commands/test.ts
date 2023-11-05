@@ -25,7 +25,7 @@ const testCli = cli('test');
 
 export default {
   flags: testFlags,
-  build(configPath, flags) {
-    return testCli(configPath, testCliFlags.parse(flags));
+  build(flags) {
+    return testCli(testCliFlags.parse(flags));
   },
 } satisfies CliDefinition<z.infer<typeof testFlags>>;

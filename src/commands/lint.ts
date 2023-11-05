@@ -16,7 +16,7 @@ const lintCli = cli('lint');
 
 export default {
   flags: lintFlags,
-  build(configPath, flags) {
-    return lintCli(configPath, lintCliFlags.parse(flags));
+  build(flags) {
+    return lintCli(lintCliFlags.parse(flags));
   },
 } satisfies CliDefinition<z.infer<typeof lintFlags>>;

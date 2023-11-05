@@ -25,7 +25,7 @@ const runCli = cli('run');
 
 export default {
   flags: runFlags,
-  build(configPath, flags) {
-    return runCli(configPath, runCliFlags.parse(flags));
+  build(flags) {
+    return runCli(runCliFlags.parse(flags));
   },
 } satisfies CliDefinition<z.infer<typeof runFlags>>;

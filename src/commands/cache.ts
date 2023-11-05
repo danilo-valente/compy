@@ -19,7 +19,7 @@ const cacheCli = cli('cache');
 
 export default {
   flags: cacheFlags,
-  build(configPath, flags) {
-    return cacheCli(configPath, cacheCliFlags.parse(flags));
+  build(flags) {
+    return cacheCli(cacheCliFlags.parse(flags));
   },
 } satisfies CliDefinition<z.infer<typeof cacheFlags>>;
