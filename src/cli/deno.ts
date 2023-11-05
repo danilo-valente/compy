@@ -1,6 +1,6 @@
-import { Command, EnumType } from 'cliffy/command/mod.ts';
+import { Command, EnumType } from '../../deps/cliffy.ts';
 
-import { buildNative, Cmd, exportNative, runNative, ShellCommand } from '~/monorepo.ts';
+import { buildNative, Cmd, exportNative, runNative, ShellCommand } from '../monorepo.ts';
 import { EggType, getCompy } from './util.ts';
 
 const shellType = new EnumType(['sh', 'bash', 'zsh', 'ash', 'fish']);

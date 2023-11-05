@@ -1,4 +1,4 @@
-import { join } from 'std/path/join.ts';
+import { join } from '../../../deps/std.ts';
 
 export type ModuleConfig = {
   name: string;
@@ -38,10 +38,7 @@ WORKDIR /app
 
 ADD . .
 
-RUN deno install -n compy \
-  --allow-env --allow-read --allow-write --allow-run --allow-sys --allow-net --unstable \
-  --import-map='https://deno.land/x/compy@v${versions.compy}/import_map.json' \
-  -f 'https://deno.land/x/compy@v${versions.compy}/run.ts'
+RUN deno install --unstable -Ar -n compy -f 'https://deno.land/x/compy@v${versions.compy}/run.ts'
 
 # Cache the main app so that it doesn't need to be cached on each startup/entry.
 RUN compy cache ${name}

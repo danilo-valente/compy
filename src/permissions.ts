@@ -1,4 +1,4 @@
-import * as z from 'zod/mod.ts';
+import * as z from '../deps/zod.ts';
 
 export const sysPermission = z.union([
   z.literal('hostname'),

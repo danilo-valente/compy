@@ -1,5 +1,5 @@
-import { blue, green } from 'std/fmt/colors.ts';
-import { Command } from 'cliffy/command/mod.ts';
+import { Command } from '../../deps/cliffy.ts';
+import { blue, green } from '../../deps/std.ts';
 
 import { buildDenoLandUrl, getCompy, UrlType } from './util.ts';
 

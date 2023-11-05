@@ -1,7 +1,7 @@
-import { ArgumentValue, EnumType, StringType, Type } from 'cliffy/command/mod.ts';
+import { ArgumentValue, EnumType, StringType, Type } from '../../deps/cliffy.ts';
 
-import { Compy, CompyLoader } from '~/compy.ts';
-import { Cmd } from '~/monorepo.ts';
+import { Compy, CompyLoader } from '../compy.ts';
+import { Cmd } from '../monorepo.ts';
 
 let compy: Compy;
 

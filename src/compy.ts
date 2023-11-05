@@ -1,13 +1,10 @@
-import { expandGlob } from 'std/fs/expand_glob.ts';
-import { dirname } from 'std/path/dirname.ts';
-import { resolve } from 'std/path/resolve.ts';
-import { toFileUrl } from 'std/path/to_file_url.ts';
-import * as z from 'zod/mod.ts';
+import { dirname, expandGlob, resolve, toFileUrl } from '../deps/std.ts';
+import * as z from '../deps/zod.ts';
 
-import { EggLoader } from '~/egg.ts';
-import { assert } from 'std/assert/assert.ts';
+import { assert } from '../deps/std.ts';
+import { EggLoader } from './egg.ts';
 
-import { ConfigLoader, DenoConfigContext } from '~/config.ts';
+import { ConfigLoader, DenoConfigContext } from './config.ts';
 
 export const COMPY_GLOB = '.compy.@(ts|json)';
 

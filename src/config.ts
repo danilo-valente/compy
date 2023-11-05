@@ -1,6 +1,4 @@
-import { expandGlob } from 'std/fs/expand_glob.ts';
-import { resolve } from 'std/path/resolve.ts';
-import * as jsonc from 'std/jsonc/mod.ts';
+import { expandGlob, jsonc, resolve } from '../deps/std.ts';
 
 // TODO(danilo-valente): map all deno.config attributes
 export type DenoConfig = {

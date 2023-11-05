@@ -1,8 +1,7 @@
-import { red } from 'std/fmt/colors.ts';
-import { ZodError } from 'zod/mod.ts';
-import { generateErrorMessage } from 'npm:zod-error';
+import { red } from './deps/std.ts';
+import { generateErrorMessage, ZodError } from './deps/zod.ts';
 
-import cli from '~/cli/mod.ts';
+import cli from './src/cli/mod.ts';
 
 try {
   const code = await cli.parse(Deno.args);

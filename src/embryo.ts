@@ -1,6 +1,6 @@
-import * as z from 'zod/mod.ts';
+import * as z from '../deps/zod.ts';
 
-import { allFlags } from '~/flags/all.ts';
+import { allFlags } from './flags/all.ts';
 
 export const zEntry = z.string().min(1);
 

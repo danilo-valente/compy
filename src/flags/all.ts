@@ -1,4 +1,4 @@
-import * as z from 'zod/mod.ts';
+import * as z from '../../deps/zod.ts';
 
 import { compilation } from './compilation.ts';
 import { lock } from './lock.ts';

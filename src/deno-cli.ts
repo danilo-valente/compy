@@ -1,6 +1,6 @@
-import * as z from 'zod/mod.ts';
+import * as z from '../deps/zod.ts';
 
-import { AllFlags } from '~/flags/all.ts';
+import { AllFlags } from './flags/all.ts';
 
 export const cli = (command: string) => (configPath: string | null, flags: string[]): CliCommand => {
   return {

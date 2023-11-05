@@ -1,18 +1,15 @@
-import { expandGlob } from 'std/fs/expand_glob.ts';
-import { dirname } from 'std/path/dirname.ts';
-import { normalizeGlob } from 'std/path/glob.ts';
-import { toFileUrl } from 'std/path/to_file_url.ts';
-import * as z from 'zod/mod.ts';
+import { dirname, expandGlob, normalizeGlob, toFileUrl } from '../deps/std.ts';
+import * as z from '../deps/zod.ts';
 
-import { zEmbryo, zEntry } from '~/embryo.ts';
-import { allFlags } from '~/flags/all.ts';
+import { zEmbryo, zEntry } from './embryo.ts';
+import { allFlags } from './flags/all.ts';
 
-import { cacheFlags } from '~/commands/cache.ts';
-import { fmtFlags } from '~/commands/fmt.ts';
-import { lintFlags } from '~/commands/lint.ts';
-import { runFlags } from '~/commands/run.ts';
-import { testFlags } from '~/commands/test.ts';
-import { basename } from 'std/path/basename.ts';
+import { basename } from '../deps/std.ts';
+import { cacheFlags } from './commands/cache.ts';
+import { fmtFlags } from './commands/fmt.ts';
+import { lintFlags } from './commands/lint.ts';
+import { runFlags } from './commands/run.ts';
+import { testFlags } from './commands/test.ts';
 
 export const EGG_GLOB = '.compy.egg.@(ts|json)';
 

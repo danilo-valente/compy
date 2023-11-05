@@ -1,5 +1,4 @@
-import { join } from 'std/path/join.ts';
-import * as toml from 'std/toml/mod.ts';
+import { join, toml } from '../../../deps/std.ts';
 
 export type ProjectConfig = {
   name: string;
@@ -93,14 +92,14 @@ export default {
       'editor.formatOnSave': true,
     },
     '[typescriptreact]': {
-      'editor.defaultFormatter': 'denoland.vscode-deno'
+      'editor.defaultFormatter': 'denoland.vscode-deno',
     },
     '[javascriptreact]': {
-      'editor.defaultFormatter': 'denoland.vscode-deno'
+      'editor.defaultFormatter': 'denoland.vscode-deno',
     },
     '[javascript]': {
-      'editor.defaultFormatter': 'denoland.vscode-deno'
-    }
+      'editor.defaultFormatter': 'denoland.vscode-deno',
+    },
   });
 
   const readmeMd = [

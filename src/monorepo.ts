@@ -1,17 +1,13 @@
-import { assert } from 'std/assert/assert.ts';
-import { dim, green, italic, white, yellow } from 'std/fmt/colors.ts';
-import { basename } from 'std/path/basename.ts';
-import { dirname } from 'std/path/dirname.ts';
-import { relative } from 'std/path/relative.ts';
+import { assert, basename, dim, dirname, green, italic, relative, white, yellow } from '../deps/std.ts';
 
-import { Compy } from '~/compy.ts';
-import { Embryo } from '~/embryo.ts';
+import { Compy } from './compy.ts';
+import { Embryo } from './embryo.ts';
 
-import cacheDef from '~/commands/cache.ts';
-import fmtDef from '~/commands/fmt.ts';
-import lintDef from '~/commands/lint.ts';
-import runDef from '~/commands/run.ts';
-import testDef from '~/commands/test.ts';
+import cacheDef from './commands/cache.ts';
+import fmtDef from './commands/fmt.ts';
+import lintDef from './commands/lint.ts';
+import runDef from './commands/run.ts';
+import testDef from './commands/test.ts';
 
 // TODO(danilo-valente): add support for other commands: bench, check, compile, doc, eval, repl, task
 const cli = {

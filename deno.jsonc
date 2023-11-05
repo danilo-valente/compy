@@ -1,4 +1,5 @@
 {
+  "lock": false,
   "compilerOptions": {
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -10,7 +11,7 @@
     "strictNullChecks": true
   },
   "lint": {
-    "include": ["src/**/*.ts", "*.ts"],
+    "include": ["src/**/*.ts", "deps/**/*.ts", "*.ts"],
     "exclude": ["example/", "fixtures/", "node_modules/"],
     "rules": {
       "tags": ["recommended"],
@@ -25,12 +26,11 @@
     "semiColons": true,
     "singleQuote": true,
     "proseWrap": "preserve",
-    "include": ["src/**/*.ts", "*.ts"],
+    "include": ["src/**/*.ts", "deps/**/*.ts", "*.ts"],
     "exclude": ["example/", "fixtures/", "node_modules/"]
   },
   "test": {
     "include": ["spec/"],
     "exclude": ["example/"]
-  },
-  "importMap": "import_map.json"
+  }
 }

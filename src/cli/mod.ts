@@ -1,11 +1,11 @@
-import { Command } from 'cliffy/command/mod.ts';
+import { Command } from '../../deps/cliffy.ts';
 
 import info from '../../info.json' assert { type: 'json' };
 
-import { init } from './init.ts';
-import { mod } from './module.ts';
 import { add } from './add.ts';
 import { cache, dev, fmt, lint, run, start, test } from './deno.ts';
+import { init } from './init.ts';
+import { mod } from './module.ts';
 
 export default new Command()
   .name('compy')

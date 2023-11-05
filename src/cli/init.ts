@@ -1,7 +1,5 @@
-import { resolve } from 'std/path/resolve.ts';
-import { blue, green, white } from 'std/fmt/colors.ts';
-import { Command } from 'cliffy/command/mod.ts';
-import { Confirm, Input } from 'cliffy/prompt/mod.ts';
+import { Command, Confirm, Input } from '../../deps/cliffy.ts';
+import { blue, green, resolve, white } from '../../deps/std.ts';
 
 import projectTemplate from './templates/project.ts';
 import { fetchModuleVersion } from './util.ts';

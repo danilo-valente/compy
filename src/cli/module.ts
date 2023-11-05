@@ -1,8 +1,7 @@
-import { resolve } from 'std/path/resolve.ts';
-import { blue, green } from 'std/fmt/colors.ts';
-import { Command } from 'cliffy/command/mod.ts';
+import { Command } from '../../deps/cliffy.ts';
+import { blue, green, resolve } from '../../deps/std.ts';
 
-import { Compy } from '~/compy.ts';
+import { Compy } from '../compy.ts';
 
 import moduleTemplate from './templates/module.ts';
 import { getCompy, getEggs } from './util.ts';
@@ -30,7 +29,7 @@ const addToImportMap = async (module: string, compy: Compy) => {
   const target = `${moduleRoot}src/`;
 
   importMap.imports[alias] = target;
-  importMap.scopes[moduleRoot] = { '~/': target };
+  importMap.scopes[moduleRoot] = { '../': target };
 
   await Deno.writeTextFile(importMapPath, JSON.stringify(importMap, null, 2));
 };
