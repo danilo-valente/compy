@@ -1,6 +1,7 @@
 import { assert, basename, dim, dirname, green, italic, relative, white, yellow } from '../deps/std.ts';
 
 import { Compy } from './compy.ts';
+import { Egg } from './egg.ts';
 import { Embryo } from './embryo.ts';
 
 import cacheDef from './commands/cache.ts';
@@ -25,56 +26,79 @@ export type Cmd = keyof typeof cli;
 
 // TODO(danilo-valente): multiple roots
 
-export const buildLogger = (scope: string) => {
+export const buildLogger = (scope: string, writer: Deno.Writer) => {
+  const encoder = new TextEncoder();
+  const write = (text: string) => writer.write(encoder.encode(`${text} `));
+
+  const mask = (arg: string) => {
+    if (arg.startsWith('-')) {
+      return arg;
+    }
+
+    if (arg.startsWith('/')) {
+      return `${dim(dirname(arg) + '/')}${white(basename(arg))}`;
+    }
+
+    if (arg.startsWith('./') || arg.startsWith('../')) {
+      return `${dirname(arg) + '/'}${white(basename(arg))}`;
+    }
+
+    return arg;
+  };
+
   return (tag: string, ...data: string[]) => {
     if (data.length === 0) {
       return;
     }
 
-    console.log(
-      green(`[compy:${scope}]`),
-      yellow(tag),
-      ...data.map((arg) => {
-        if (arg.startsWith('-')) {
-          return arg;
-        }
+    write(green(`[compy:${scope}]`));
+    write(yellow(tag));
 
-        if (arg.startsWith('/')) {
-          return `${dim(dirname(arg) + '/')}${white(basename(arg))}`;
-        }
+    for (const arg of data) {
+      write(mask(arg));
+    }
 
-        if (arg.startsWith('./') || arg.startsWith('../')) {
-          return `${dirname(arg) + '/'}${white(basename(arg))}`;
-        }
-
-        return arg;
-      }),
-    );
+    writer.write(encoder.encode('\n'));
   };
 };
 
+export type CompyCmd = [Cmd] | ['run', string];
+
 export type ShellCommand = {
   userCwd: string;
+  cmd: CompyCmd;
   exec: string | URL;
   cwd: string;
   args: string[];
   env: Record<string, string>;
-  log: ReturnType<typeof buildLogger>;
 };
 
-export const buildNative = async (
+export const loadNative = async (
   compy: Compy,
-  [cmd, script]: [Cmd] | ['run', string],
+  cmd: CompyCmd,
   eggName: string,
   /**
    * @deprecated remove support for `argv` in favor of `egg.config.args`
    */
   argv?: string[],
-): Promise<ShellCommand> => {
+) => {
   assert(eggName, 'Missing package name');
-  assert(cmd, 'Missing command');
 
-  const egg = await compy.eggs.load(eggName);
+  const egg = await compy.eggs.mapAndLoad(eggName);
+
+  return buildNative(compy, egg, cmd, argv);
+};
+
+export const buildNative = (
+  compy: Compy,
+  egg: Egg,
+  compyCmd: CompyCmd,
+  /**
+   * @deprecated remove support for `argv` in favor of `egg.config.args`
+   */
+  argv?: string[],
+): ShellCommand => {
+  const [cmd, script] = compyCmd;
 
   const buildEmbryo = () => {
     if (cmd === 'run') {
@@ -82,21 +106,19 @@ export const buildNative = async (
       assert(embryo, `Missing 'run.${script}' config`);
 
       const cliCmd = runDef;
-      const log = buildLogger(`run:${script}`);
 
-      return { embryo, cliCmd, log };
+      return { embryo, cliCmd };
     }
 
     const embryo = egg.config[cmd];
     const cliCmd = cli[cmd];
-    const log = buildLogger(cmd);
 
-    return { embryo, cliCmd, log };
+    return { embryo, cliCmd };
   };
 
   // TODO(danilo-valente): implement command inheritance
   const buildCli = () => {
-    const { embryo, cliCmd, log } = buildEmbryo();
+    const { embryo, cliCmd } = buildEmbryo();
 
     const mergedEmbryo: Embryo = {
       flags: cliCmd.flags.strip().parse({
@@ -125,11 +147,10 @@ export const buildNative = async (
         mergedEmbryo.entry,
         ...mergedEmbryo.args,
       ],
-      log: log,
     };
   };
 
-  const { exec, env, args: cliArgs, log } = buildCli();
+  const { exec, env, args: cliArgs } = buildCli();
   const args = [
     ...cliArgs,
     ...(argv ?? []),
@@ -137,15 +158,32 @@ export const buildNative = async (
 
   return {
     userCwd: compy.cwd,
+    cmd: compyCmd,
     exec,
     cwd: egg.nest,
     args,
     env,
-    log,
   };
 };
 
-export const runNative = async ({ userCwd, cwd, exec, args, env, log }: ShellCommand) => {
+export type RunNativeOptions = {
+  log?: boolean;
+  stdout?: Deno.Writer & { writable: WritableStream<Uint8Array> };
+  stderr?: Deno.Writer & { writable: WritableStream<Uint8Array> };
+  signal?: AbortSignal;
+};
+
+export const runNative = async (
+  { userCwd, cmd, cwd, exec, args, env }: ShellCommand,
+  {
+    log: logging = true,
+    stdout = Deno.stdout,
+    stderr = Deno.stderr,
+    signal,
+  }: RunNativeOptions = {},
+): Promise<Deno.CommandStatus> => {
+  const log = logging ? buildLogger(cmd.join(':'), stdout) : () => {};
+
   log('cwd:', relative(userCwd, cwd));
 
   log(
@@ -159,6 +197,8 @@ export const runNative = async ({ userCwd, cwd, exec, args, env, log }: ShellCom
     ...Object.entries(env).map(([key, value]) => italic(`\n    - ${key}=${String(value).replace(/./g, '*')}`)),
   );
 
+  const abortController = new AbortController();
+
   const command = new Deno.Command(exec, {
     cwd: cwd,
     env: env,
@@ -166,31 +206,29 @@ export const runNative = async ({ userCwd, cwd, exec, args, env, log }: ShellCom
     stdin: 'piped',
     stdout: 'piped',
     stderr: 'piped',
+    signal: abortController.signal,
   });
 
   const process = command.spawn();
 
-  process.stdout.pipeTo(Deno.stdout.writable);
-  process.stderr.pipeTo(Deno.stderr.writable);
+  process.stdout.pipeTo(stdout.writable, { preventClose: true });
+  process.stderr.pipeTo(stderr.writable, { preventClose: true });
 
-  Deno.addSignalListener('SIGINT', () => {
-    process.kill('SIGINT');
-    Deno.exit(0);
-  });
+  const sigintHandler = () => process.kill('SIGINT');
+  const sigtermHandler = () => abortController.abort();
 
-  Deno.addSignalListener('SIGTERM', () => {
-    process.kill('SIGTERM');
-    Deno.exit(1);
-  });
+  Deno.addSignalListener('SIGINT', sigintHandler);
+  Deno.addSignalListener('SIGTERM', sigtermHandler);
 
-  // Deno.addSignalListener('SIGKILL', () => {
-  //   process.kill('SIGKILL');
-  //   Deno.exit(1);
-  // });
+  signal?.addEventListener('abort', sigtermHandler);
 
-  const { code } = await process.status;
+  const status = await process.status;
 
-  return code;
+  Deno.removeSignalListener('SIGINT', sigintHandler);
+  Deno.removeSignalListener('SIGTERM', sigtermHandler);
+  signal?.removeEventListener('abort', sigtermHandler);
+
+  return status;
 };
 
 export const exportNative = async (native: ShellCommand, shell: string) => {

@@ -1,11 +1,11 @@
 import { Command, EnumType } from '../../deps/cliffy.ts';
 
-import { buildNative, Cmd, exportNative, runNative, ShellCommand } from '../monorepo.ts';
+import { Cmd, exportNative, loadNative, runNative, ShellCommand } from '../monorepo.ts';
 import { EggType, getCompy } from './util.ts';
 
 const shellType = new EnumType(['sh', 'bash', 'zsh', 'ash', 'fish']);
 
-const runOrExport = async (native: ShellCommand, shell?: string) => {
+const runOrExport = async (native: ShellCommand, shell?: string): Promise<Deno.CommandStatus> => {
   if (shell) {
     const script = await exportNative(native, shell);
 
@@ -13,10 +13,14 @@ const runOrExport = async (native: ShellCommand, shell?: string) => {
       new TextEncoder().encode(script),
     );
 
-    return 0;
+    return {
+      success: true,
+      code: 0,
+      signal: null,
+    };
   }
 
-  return await runNative(native);
+  return runNative(native);
 };
 
 const buildCommand = (cmd: Cmd, description: string) =>
@@ -30,7 +34,7 @@ const buildCommand = (cmd: Cmd, description: string) =>
     .stopEarly()
     .action(async ({ shell }, module, ...args) => {
       const compy = await getCompy();
-      const native = await buildNative(compy, [cmd], module, args);
+      const native = await loadNative(compy, [cmd], module, args);
 
       return await runOrExport(native, shell);
     });
@@ -52,7 +56,7 @@ export const run = new Command()
   .stopEarly()
   .action(async ({ shell }, module, task, ...args) => {
     const compy = await getCompy();
-    const native = await buildNative(compy, ['run', task], module, args);
+    const native = await loadNative(compy, ['run', task], module, args);
 
     return await runOrExport(native, shell);
   });

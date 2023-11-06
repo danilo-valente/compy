@@ -1,4 +1,4 @@
-import { dirname, expandGlob, normalizeGlob, toFileUrl } from '../deps/std.ts';
+import { dirname, expandGlob, normalizeGlob, resolve, toFileUrl } from '../deps/std.ts';
 import * as z from '../deps/zod.ts';
 
 import { zEmbryo, zEntry } from './embryo.ts';
@@ -59,39 +59,49 @@ export type Egg = {
 
 type EggLoaderArgs = {
   cwd: string;
+  rootDir?: string;
   glob?: string;
 };
 
 export class EggLoader {
   private readonly cwd: string;
+  private readonly rootDir: string;
   private readonly glob: string;
 
-  constructor({ cwd, glob = EGG_GLOB }: EggLoaderArgs) {
+  constructor({ cwd, rootDir = resolve('/'), glob = EGG_GLOB }: EggLoaderArgs) {
     this.cwd = cwd;
+    this.rootDir = rootDir;
     this.glob = glob;
   }
 
-  async load(name: string): Promise<Egg> {
-    const eggs = await this.lookup(name);
+  async mapAndLoad(name: string): Promise<Egg> {
+    const eggs = await this.map(name);
     const eggUrl = eggs[name];
 
     if (!eggUrl) {
       throw new Deno.errors.NotFound(`Could not find egg "${name}" (using glob "${this.glob}")`);
     }
 
+    return this.load(eggUrl, name);
+  }
+
+  async load(eggUrl: URL, alias?: string): Promise<Egg> {
     const eggModule = await import(eggUrl.href);
 
     const eggConfig = zEggConfig.parse(eggModule.default ?? eggModule);
 
+    const nest = dirname(eggUrl.pathname);
+    const name = alias || basename(nest);
+
     return {
       cwd: this.cwd,
-      nest: dirname(eggUrl.pathname),
+      nest,
       config: eggConfig,
       name,
     };
   }
 
-  async lookup(pattern = '*'): Promise<Record<string, URL>> {
+  async map(pattern = '*'): Promise<Record<string, URL>> {
     const glob = normalizeGlob(`${pattern}/${this.glob}`);
 
     const urls: Record<string, URL> = {};
@@ -107,5 +117,21 @@ export class EggLoader {
     }
 
     return urls;
+  }
+
+  async lookup(dir = this.cwd): Promise<URL | null> {
+    for await (const entry of expandGlob(this.glob, { root: dir })) {
+      if (!entry.isFile) {
+        continue;
+      }
+
+      return toFileUrl(entry.path);
+    }
+
+    if (dir === this.rootDir) {
+      return null;
+    }
+
+    return this.lookup(resolve(dir, '..'));
   }
 }

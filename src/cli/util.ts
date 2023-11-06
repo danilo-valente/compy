@@ -15,7 +15,7 @@ export const getCompy = async (): Promise<Compy> => {
 
 export const getEggs = async (): Promise<string[]> => {
   const compy = await getCompy();
-  const eggs = await compy.eggs.lookup();
+  const eggs = await compy.eggs.map();
 
   return Object.keys(eggs);
 };
