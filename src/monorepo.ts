@@ -197,8 +197,6 @@ export const runNative = async (
     ...Object.entries(env).map(([key, value]) => italic(`\n    - ${key}=${String(value).replace(/./g, '*')}`)),
   );
 
-  const abortController = new AbortController();
-
   const command = new Deno.Command(exec, {
     cwd: cwd,
     env: env,
@@ -206,7 +204,6 @@ export const runNative = async (
     stdin: 'piped',
     stdout: 'piped',
     stderr: 'piped',
-    signal: abortController.signal,
   });
 
   const process = command.spawn();
@@ -214,17 +211,30 @@ export const runNative = async (
   process.stdout.pipeTo(stdout.writable, { preventClose: true });
   process.stderr.pipeTo(stderr.writable, { preventClose: true });
 
-  const sigintHandler = () => process.kill('SIGINT');
-  const sigtermHandler = () => abortController.abort();
+  const sigintHandler = () => {
+    process.kill('SIGINT');
+    Deno.exit(130);
+  };
+
+  const sigquitHandler = () => {
+    process.kill('SIGQUIT');
+    Deno.exit(131);
+  };
+
+  const sigtermHandler = () => {
+    process.kill('SIGTERM');
+    Deno.exit(143);
+  };
 
   Deno.addSignalListener('SIGINT', sigintHandler);
+  Deno.addSignalListener('SIGQUIT', sigquitHandler);
   Deno.addSignalListener('SIGTERM', sigtermHandler);
-
   signal?.addEventListener('abort', sigtermHandler);
 
   const status = await process.status;
 
   Deno.removeSignalListener('SIGINT', sigintHandler);
+  Deno.removeSignalListener('SIGQUIT', sigquitHandler);
   Deno.removeSignalListener('SIGTERM', sigtermHandler);
   signal?.removeEventListener('abort', sigtermHandler);
 
