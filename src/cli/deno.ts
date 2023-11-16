@@ -29,7 +29,7 @@ const buildCommand = (cmd: Cmd, description: string) =>
     .description(description)
     .type('egg', new EggType())
     .type('shell', shellType)
-    .arguments('[module:egg] [...args:string]').allowEmpty()
+    .arguments('[module:egg] [...args:string]')
     .option('-e, --shell <shell:shell>', 'Export command as a shell script')
     .stopEarly()
     .action(async ({ shell }, module, ...args) => {
@@ -38,7 +38,7 @@ const buildCommand = (cmd: Cmd, description: string) =>
         const modules = await getEggs();
         for (const module of modules) {
           const native = await loadNative(compy, [cmd], module, args);
-          await runNative(native);
+          await runOrExport(native, shell);
         }
         return;
       }
