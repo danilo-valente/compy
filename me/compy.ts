@@ -1,18 +1,12 @@
-import { assert } from './deps/std.ts';
-import { CompyLoader } from './src/compy.ts';
-import { buildNative, CompyCmd, runNative, RunNativeOptions } from './src/monorepo.ts';
-export { buildLogger } from './src/monorepo.ts';
+import { CompyLoader } from '../src/compy.ts';
+import { buildNative, CompyCmd, runNative, RunNativeOptions } from '../src/monorepo.ts';
+export { buildLogger } from '../src/monorepo.ts';
 
-export const compy = await CompyLoader.from(Deno.cwd());
+const compy = await CompyLoader.from(Deno.cwd());
 
-const eggPath = await compy.eggs.lookup(compy.cwd);
-assert(eggPath, 'Not in a nest');
+export default compy;
 
-export const egg = await compy.eggs.load(eggPath);
-
-const build = buildNative.bind(null, compy, egg);
-
-type KitCommand = (argv?: string[]) => Promise<Deno.CommandStatus>;
+type KitCommand = (eggName: string, argv?: string[]) => Promise<Deno.CommandStatus>;
 
 type Kit = Record<string, KitCommand> & {
   cache: KitCommand;
@@ -24,8 +18,12 @@ type Kit = Record<string, KitCommand> & {
   // run: (script: string, argv?: string[]) => Promise<Deno.CommandStatus>;
 };
 
-export const kit = (options?: RunNativeOptions): Kit => {
-  const bind = (cmd: CompyCmd) => (argv?: string[]) => runNative(build(cmd, argv), options);
+export const kit = (options: RunNativeOptions = { log: false }): Kit => {
+  const bind = (cmd: CompyCmd) => async (eggName: string, argv?: string[]) => {
+    const egg = await compy.eggs.mapAndLoad(eggName);
+    const native = buildNative(compy, egg, cmd, argv);
+    return runNative(native, options);
+  };
 
   const base: Kit = {
     cache: bind(['cache']),
@@ -48,9 +46,6 @@ export const kit = (options?: RunNativeOptions): Kit => {
   });
 };
 
-const stdKit = kit();
-export default stdKit;
-
 export const {
   cache,
   fmt,
@@ -58,4 +53,4 @@ export const {
   test,
   start,
   dev,
-} = stdKit;
+} = kit();

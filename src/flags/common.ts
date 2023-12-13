@@ -23,10 +23,8 @@ export const buildFlag = (name: string, value: FlagValue | undefined): string | 
   return `${flagName}=${value}`;
 };
 
-export const buildFlags = <T extends Record<string, FlagValue>>(flagMap: T, subset: (keyof T)[]) =>  {
-  const flags = subset.map((name) =>
-    buildFlag(name.toString(), flagMap[name])
-  );
+export const buildFlags = <T extends Record<string, FlagValue>>(flagMap: T, subset: (keyof T)[]) => {
+  const flags = subset.map((name) => buildFlag(name.toString(), flagMap[name]));
 
   return flags.filter((flag): flag is string => flag !== undefined);
 };

@@ -63,7 +63,7 @@ fi
 
 # Deno Check & Test
 
-check=`deno check run.ts me.ts types.ts`
+check=`deno check run.ts me/compy.ts me/egg.ts types.ts`
 [ $? -ne 0 ] && echo "Deno Check failed." && exit 1
 
 # Deno Check & Test

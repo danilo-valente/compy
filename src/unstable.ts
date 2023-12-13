@@ -8,19 +8,19 @@ export const zUnstableFeature = z.union([
 ]);
 
 export const zUnstable = z.object({
-    bareNodeBuiltins: zUnstableFeature,
-    byonm: zUnstableFeature,
-    workspaces: zUnstableFeature,
-    broadcastChannel: zUnstableFeature,
-    ffi: zUnstableFeature,
-    fs: zUnstableFeature,
-    kv: zUnstableFeature,
-    net: zUnstableFeature,
-    http: zUnstableFeature,
-    workerOptions: zUnstableFeature,
-    cron: zUnstableFeature,
-    hmr: zUnstableFeature,
-  });
+  bareNodeBuiltins: zUnstableFeature,
+  byonm: zUnstableFeature,
+  workspaces: zUnstableFeature,
+  broadcastChannel: zUnstableFeature,
+  ffi: zUnstableFeature,
+  fs: zUnstableFeature,
+  kv: zUnstableFeature,
+  net: zUnstableFeature,
+  http: zUnstableFeature,
+  workerOptions: zUnstableFeature,
+  cron: zUnstableFeature,
+  hmr: zUnstableFeature,
+});
 
 export type Unstable = z.infer<typeof zUnstable>;
 
