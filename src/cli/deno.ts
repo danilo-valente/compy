@@ -1,7 +1,7 @@
 import { Command, EnumType } from '../../deps/cliffy.ts';
 
 import { Cmd, exportNative, loadNative, runNative, ShellCommand } from '../monorepo.ts';
-import { EggType, getCompy } from './util.ts';
+import { EggType, getCompy, getEggs } from './util.ts';
 
 const shellType = new EnumType(['sh', 'bash', 'zsh', 'ash', 'fish']);
 
@@ -29,11 +29,20 @@ const buildCommand = (cmd: Cmd, description: string) =>
     .description(description)
     .type('egg', new EggType())
     .type('shell', shellType)
-    .arguments('<module:egg> [...args:string]')
+    .arguments('[module:egg] [...args:string]')
     .option('-e, --shell <shell:shell>', 'Export command as a shell script')
     .stopEarly()
     .action(async ({ shell }, module, ...args) => {
       const compy = await getCompy();
+      if (module === undefined) {
+        const modules = await getEggs();
+        for (const module of modules) {
+          const native = await loadNative(compy, [cmd], module, args);
+          await runOrExport(native, shell);
+        }
+        return;
+      }
+
       const native = await loadNative(compy, [cmd], module, args);
 
       return await runOrExport(native, shell);
