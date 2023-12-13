@@ -1,12 +1,14 @@
 import * as z from '../../deps/zod.ts';
 
+import { buildFlags, zFlagValue } from './common.ts';
+
 export const watch = {
-  watch: z.boolean().optional(),
+  watch: zFlagValue,
 };
 
 const watchSchema = z.object(watch).strict();
 
 export const watchTransformer = (flags: z.infer<typeof watchSchema>) =>
-  [
-    flags.watch ? '--watch' : undefined,
-  ].filter(Boolean);
+  buildFlags(flags, [
+    'watch',
+  ]);

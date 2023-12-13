@@ -241,7 +241,7 @@ export const runNative = async (
   return status;
 };
 
-export const exportNative = async (native: ShellCommand, shell: string) => {
+export const exportNative = (native: ShellCommand, shell: string) => {
   const shEnv = Object.entries(native.env).map(
     ([key, value]) => `export ${key}="${value.replace(/"/g, '\\"')}"`,
   );

@@ -28,4 +28,4 @@ export default {
   build(flags) {
     return testCli(testCliFlags.parse(flags));
   },
-} satisfies CliDefinition<z.infer<typeof testFlags>>;
+} satisfies CliDefinition<z.input<typeof testFlags>>;

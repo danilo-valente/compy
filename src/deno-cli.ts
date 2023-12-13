@@ -1,6 +1,6 @@
 import * as z from '../deps/zod.ts';
 
-import { AllFlags } from './flags/all.ts';
+import { AllFlagsInput } from './flags/all.ts';
 
 export const cli = (command: string) => (flags: string[]): CliCommand => {
   return {
@@ -12,7 +12,7 @@ export const cli = (command: string) => (flags: string[]): CliCommand => {
   };
 };
 
-export interface CliDefinition<F extends AllFlags> {
+export interface CliDefinition<F extends AllFlagsInput> {
   readonly flags: z.ZodType<F>;
   build(flags: F): CliCommand;
 }

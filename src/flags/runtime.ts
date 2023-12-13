@@ -1,8 +1,12 @@
 import * as z from '../../deps/zod.ts';
 
 import { buildPermissions, permissionFlags } from '../permissions.ts';
+import { buildFlags, zFlagValue } from './common.ts';
 
-export const runtimeInspect = z.union([z.string(), z.tuple([z.string(), z.number()])]);
+export const runtimeInspect = z.union([
+  z.string(),
+  z.tuple([z.string(), z.number()]).transform(([host, port]) => `${host}:${port}`),
+]);
 
 export const runtime = {
   allow: z.union([
@@ -10,7 +14,7 @@ export const runtime = {
     z.literal(true).optional(),
   ]).optional(),
   deny: permissionFlags.optional(),
-  check: z.boolean().optional(),
+  check: zFlagValue,
   inspect: runtimeInspect.optional(),
   inspectBrk: runtimeInspect.optional(),
   inspectWait: runtimeInspect.optional(),
@@ -22,16 +26,17 @@ export const runtime = {
 
 const runtimeSchema = z.object(runtime).strict();
 
-export const runtimeTransformer = (flags: z.infer<typeof runtimeSchema>) =>
-  [
-    ...flags.allow === true ? ['-A'] : buildPermissions(flags.allow ?? [], 'allow'),
-    ...buildPermissions(flags.deny ?? [], 'deny'),
-    flags.check ? '--check' : undefined,
-    flags.inspect ? `--inspect=${flags.inspect}` : undefined,
-    flags.inspectBrk ? `--inspect-brk=${flags.inspectBrk}` : undefined,
-    flags.inspectWait ? `--inspect-wait=${flags.inspectWait}` : undefined,
-    flags.location ? `--location=${flags.location}` : undefined,
-    flags.prompt ? '--prompt' : undefined,
-    flags.seed ? `--seed=${flags.seed}` : undefined,
-    flags.v8Flags ? `--v8-flags=${flags.v8Flags}` : undefined,
-  ].filter(Boolean);
+export const runtimeTransformer = ({ allow, deny, ...flags }: z.infer<typeof runtimeSchema>) => [
+  ...allow === true ? ['-A'] : buildPermissions(allow ?? [], 'allow'),
+  ...buildPermissions(deny ?? [], 'deny'),
+  ...buildFlags(flags, [
+    'check',
+    'inspect',
+    'inspectBrk',
+    'inspectWait',
+    'location',
+    'prompt',
+    'seed',
+    'v8Flags',
+  ]),
+];

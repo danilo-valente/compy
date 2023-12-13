@@ -27,11 +27,11 @@ export class UrlType extends Type<URL> {
 }
 
 export class EggType extends StringType {
-  async complete() {
+  complete() {
     try {
-      return await getEggs();
+      return getEggs();
     } catch {
-      return [];
+      return Promise.resolve([]);
     }
   }
 }

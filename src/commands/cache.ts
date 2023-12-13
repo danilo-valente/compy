@@ -22,4 +22,4 @@ export default {
   build(flags) {
     return cacheCli(cacheCliFlags.parse(flags));
   },
-} satisfies CliDefinition<z.infer<typeof cacheFlags>>;
+} satisfies CliDefinition<z.input<typeof cacheFlags>>;

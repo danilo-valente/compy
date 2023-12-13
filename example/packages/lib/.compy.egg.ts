@@ -1,4 +1,4 @@
-import { Egg } from 'https://deno.land/x/compy@v0.0.8/types.ts';
+import { Egg } from '../../../types.ts';
 
 export default {
   entry: './src/mod.ts',

@@ -51,12 +51,12 @@ export class CompyLoader {
     this.glob = glob;
   }
 
-  static async from(cwdOrArgs: string | CompyLoaderArgs): Promise<Compy> {
+  static from(cwdOrArgs: string | CompyLoaderArgs): Promise<Compy> {
     const args = typeof cwdOrArgs === 'string' ? { cwd: cwdOrArgs } : cwdOrArgs;
 
     const loader = new CompyLoader(args);
 
-    return await loader.load();
+    return loader.load();
   }
 
   async load(): Promise<Compy> {

@@ -22,4 +22,4 @@ export default {
   build(flags) {
     return fmtCli(fmtCliFlags.parse(flags));
   },
-} satisfies CliDefinition<z.infer<typeof fmtFlags>>;
+} satisfies CliDefinition<z.input<typeof fmtFlags>>;

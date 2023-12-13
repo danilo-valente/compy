@@ -1,9 +1,24 @@
 {
   "deno.enable": true,
+  "deno.disablePaths": ["./vendor/", "./node_modules/"],
   "deno.cacheOnSave": true,
   "deno.config": "./deno.jsonc",
   "deno.lint": true,
   "deno.unstable": true,
+  "deno.maxTsServerMemory": 2048,
+  "deno.codeLens.implementations": true,
+  "deno.codeLens.references": true,
+  "deno.codeLens.referencesAllFunctions": true,
+  "deno.codeLens.test": true,
+  "deno.suggest.imports.autoDiscover": true,
+  "typescript.inlayHints.enumMemberValues.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.parameterNames.suppressWhenArgumentMatchesName": true,
+  "typescript.inlayHints.parameterTypes.enabled": true,
+  "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.suppressWhenTypeMatchesName": true,
   "typescript.preferences.quoteStyle": "single",
   "typescript.format.semicolons": "insert",
   "[typescript]": {
@@ -11,7 +26,7 @@
     "editor.defaultFormatter": "denoland.vscode-deno",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": true
+      "source.organizeImports": "explicit"
     },
   }
 }

@@ -1,5 +1,6 @@
 {
   "lock": false,
+  "vendor": true,
   "compilerOptions": {
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -12,11 +13,11 @@
   },
   "lint": {
     "include": ["src/**/*.ts", "deps/**/*.ts", "*.ts"],
-    "exclude": ["example/", "fixtures/", "node_modules/"],
+    "exclude": ["example/", "fixtures/", "vendor/", "node_modules/"],
     "rules": {
       "tags": ["recommended"],
       "include": ["ban-untagged-todo"],
-      "exclude": ["require-await", "no-unused-vars"]
+      "exclude": ["no-unused-vars"]
     }
   },
   "fmt": {
@@ -27,10 +28,10 @@
     "singleQuote": true,
     "proseWrap": "preserve",
     "include": ["src/**/*.ts", "deps/**/*.ts", "*.ts"],
-    "exclude": ["example/", "fixtures/", "node_modules/"]
+    "exclude": ["example/", "fixtures/", "vendor/", "node_modules/"]
   },
   "test": {
     "include": ["spec/"],
-    "exclude": ["example/"]
+    "exclude": ["example/", "vendor/", "node_modules/"]
   }
 }

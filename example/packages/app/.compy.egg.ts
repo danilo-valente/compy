@@ -5,7 +5,10 @@ export default {
   allow: ['env', 'net', 'read', 'write'],
   unstable: true,
 
-  cache: './mod.ts',
+  cache: {
+    entry: './mod.ts',
+    reload: true,
+  },
   start: {
     entry: './src/run.ts',
     env: {
@@ -14,13 +17,16 @@ export default {
     },
   },
   dev: {
+    watch: ['mod.ts', './src/run.ts'],
+    check: true,
     env: {
       ENV_TYPE: 'development',
     },
   },
   test: {
     entry: 'spec/',
-    lock: 'test.deno.lock',
+    watch: true,
+    check: true,
     env: {
       ENV_TYPE: 'test',
     },
@@ -30,7 +36,6 @@ export default {
   run: {
     script: {
       entry: './script.ts',
-      lock: 'script.deno.lock',
     },
   },
 } satisfies Egg;

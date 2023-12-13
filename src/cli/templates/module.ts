@@ -15,11 +15,15 @@ export default {
   entry: './src/mod.ts',
 
   dev: {
+    watch: true,
+    check: true,
     env: {
       ENV_TYPE: 'development',
     },
   },
   test: {
+    watch: true,
+    check: true,
     entry: 'spec/',
     env: {
       ENV_TYPE: 'test',

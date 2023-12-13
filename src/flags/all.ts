@@ -12,4 +12,4 @@ export const allFlags = z.object({
   ...watch,
 });
 
-export type AllFlags = z.infer<typeof allFlags>;
+export type AllFlagsInput = z.input<typeof allFlags>;

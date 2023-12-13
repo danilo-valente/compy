@@ -19,4 +19,4 @@ export default {
   build(flags) {
     return lintCli(lintCliFlags.parse(flags));
   },
-} satisfies CliDefinition<z.infer<typeof lintFlags>>;
+} satisfies CliDefinition<z.input<typeof lintFlags>>;

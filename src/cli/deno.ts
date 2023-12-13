@@ -5,12 +5,14 @@ import { EggType, getCompy, getEggs } from './util.ts';
 
 const shellType = new EnumType(['sh', 'bash', 'zsh', 'ash', 'fish']);
 
+const encoder = new TextEncoder();
+
 const runOrExport = async (native: ShellCommand, shell?: string): Promise<Deno.CommandStatus> => {
   if (shell) {
-    const script = await exportNative(native, shell);
+    const script = exportNative(native, shell);
 
     await Deno.stdout.write(
-      new TextEncoder().encode(script),
+      encoder.encode(script),
     );
 
     return {
@@ -75,7 +77,7 @@ const buildModuleCommand = (cmd: Cmd, description: string) =>
 
       const native = await loadNative(compy, [cmd], module, args);
 
-      return await runOrExport(native, shell);
+      return runOrExport(native, shell);
     });
 
 export const cache = buildCommand('cache', `Run 'deno cache' on a module`);
@@ -98,5 +100,5 @@ export const run = new Command()
     const compy = await getCompy();
     const native = await loadNative(compy, ['run', task], module, args);
 
-    return await runOrExport(native, shell);
+    return runOrExport(native, shell);
   });

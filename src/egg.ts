@@ -20,13 +20,7 @@ export const zEggConfig = z.object({
   fmt: zEmbryo(fmtFlags, {}),
   lint: zEmbryo(lintFlags, {}),
   start: zEmbryo(runFlags, {}),
-  dev: zEmbryo(
-    runFlags.extend({
-      watch: runFlags.shape.watch.default(true),
-      check: runFlags.shape.check.default(true),
-    }),
-    { ENV_TYPE: 'development' },
-  ),
+  dev: zEmbryo(runFlags, {}),
   run: z.record(zEmbryo(runFlags, {})),
 })
   .partial()
