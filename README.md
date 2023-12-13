@@ -46,6 +46,12 @@ compy mod [module]
 compy add <name> [version] [-m <module>] [-u <url>]
 ```
 
+### Run a Deno command in each modules' context
+
+```sh
+compy <cache|test|fmt|lint>
+```
+
 ### Run a Deno command in a module's context
 
 ```sh
